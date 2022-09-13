@@ -15,9 +15,3 @@ ninja -C build
 sudo ninja -C build install
 ```
 
-# Man
-
-```
-meson --reconfigure build -Dman=enabled
-ninja -C build
-```

@@ -1,3 +1,5 @@
+wayland_client = dependency('wayland-client')
+
 wayland_scanner = find_program('wayland-scanner')
 
 wayland_scanner_code = generator(
@@ -12,26 +14,25 @@ wayland_scanner_client = generator(
 	arguments: ['client-header', '@INPUT@', '@OUTPUT@'],
 	)
 
-client_protocols = [
-	['river-layout-v3.xml'],
-	]
+xml_files = files(
+	'river-layout-v3.xml',
+	)
 
-client_protos_src = []
-client_protos_headers = []
+proto_src_files = []
+proto_header_files = []
 
-foreach p : client_protocols
-	xml = join_paths(p)
-	client_protos_src += wayland_scanner_code.process(xml)
-	client_protos_headers += wayland_scanner_client.process(xml)
+foreach xml : xml_files
+	proto_src_files += wayland_scanner_code.process(xml)
+	proto_header_files += wayland_scanner_client.process(xml)
 endforeach
 
 lib_client_protos = static_library(
 	'client_protos',
-	client_protos_src + client_protos_headers,
+	proto_src_files + proto_header_files,
 	dependencies: [wayland_client]
 	)
 
 client_protos = declare_dependency(
 	link_with: lib_client_protos,
-	sources: client_protos_headers,
+	sources: proto_header_files,
 	)

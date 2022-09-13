@@ -9,8 +9,6 @@ project(
 		],
 	)
 
-wayland_client = dependency('wayland-client')
-
 cc = meson.get_compiler('c')
 
 add_project_arguments(cc.get_supported_arguments([
@@ -19,15 +17,13 @@ add_project_arguments(cc.get_supported_arguments([
 	'-Wstrict-prototypes',
 	]), language: 'c')
 
-src = [
-	'src/main.c',
-	]
-
+subdir('src')
 subdir('pro')
+subdir('doc')
 
 executable(
 	meson.project_name(),
-	src,
+	src_files,
 	include_directories: include_directories('inc'),
 	dependencies: client_protos,
 	install: true,
