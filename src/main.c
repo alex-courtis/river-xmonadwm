@@ -1,10 +1,19 @@
 #include <stdio.h>
+#include <stdlib.h>
+
+#include "displ.h"
+#include "log.h"
 
 #include "river-layout-v3-client-protocol.h"
 
-int main(void/*int argc, char **argv*/) {
-	river_layout_manager_v3_get_user_data(NULL);
+int main(int argc, char **argv) {
+	log_info("river-xmonadwm starting");
 
-	printf("river-xmonadwm\n");
+	if (!displ_connect()) {
+		exit(EXIT_FAILURE);
+	}
+
+	log_info("river-xmonadwm started");
+
 	return 0;
 }
