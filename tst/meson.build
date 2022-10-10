@@ -22,7 +22,7 @@ foreach name, params: tests
 		'@0@.c'.format(name),
 		params['src'],
 		include_directories: includes,
-		dependencies: [cmocka],
+		dependencies: [cmocka, client_protos],
 		link_args : params.get('link_args', ''),
 		)
 	test(name, exe)

@@ -12,6 +12,7 @@ project(
 cc = meson.get_compiler('c')
 
 add_project_arguments(cc.get_supported_arguments([
+	'-Wno-empty-translation-unit',
 	'-Wno-unused-parameter',
 	'-Wold-style-definition',
 	'-Wstrict-prototypes',
@@ -20,8 +21,8 @@ add_project_arguments(cc.get_supported_arguments([
 includes = [include_directories('inc')]
 
 subdir('src')
-subdir('tst')
 subdir('pro')
+subdir('tst')
 subdir('doc')
 
 executable(
