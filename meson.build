@@ -17,14 +17,17 @@ add_project_arguments(cc.get_supported_arguments([
 	'-Wstrict-prototypes',
 	]), language: 'c')
 
+includes = [include_directories('inc')]
+
 subdir('src')
+subdir('tst')
 subdir('pro')
 subdir('doc')
 
 executable(
 	meson.project_name(),
 	src_files,
-	include_directories: include_directories('inc'),
+	include_directories: includes,
 	dependencies: client_protos,
 	install: true,
 	)
