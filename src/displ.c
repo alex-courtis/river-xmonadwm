@@ -59,12 +59,3 @@ void displ_destroy(void) {
 	displ = NULL;
 }
 
-void displ_add_output(struct wl_output *wl_output) {
-
-	struct Output *output = output_init(wl_output, displ->layout_manager);
-
-	if (output) {
-		slist_append(&displ->outputs, output);
-	}
-}
-
