@@ -8,7 +8,7 @@ enum LogThreshold {
 	INFO,
 	WARNING,
 	ERROR,
-	LOG_THRESHOLD_DEFAULT = INFO,
+	LOG_THRESHOLD_DEFAULT = DEBUG,
 };
 
 extern enum LogThreshold threshold;

@@ -55,7 +55,7 @@ void log_(enum LogThreshold threshold, int eno, const char *__restrict __format,
 
 	print_prefix(threshold, stream);
 
-	fprintf(stream, __format, __args);
+	vfprintf(stream, __format, __args);
 
 	if (eno) {
 		fprintf(stream, " %d: %s", eno, strerror(eno));

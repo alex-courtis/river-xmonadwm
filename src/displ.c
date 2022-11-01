@@ -1,72 +1,70 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "log.h"
 #include "list.h"
+#include "listeners.h"
+#include "log.h"
 #include "output.h"
 
 #include "displ.h"
 
 struct Displ *displ = NULL;
 
-static void global(void *data,
-		struct wl_registry *wl_registry,
-		uint32_t name,
-		const char *interface,
-		uint32_t version) {
-
-	struct Displ *displ = data;
-	displ->name = name;
-
-	displ->interface = strdup(interface);
-
-	if (strcmp(interface, river_layout_manager_v3_interface.name) == 0) {
-		displ->layout_manager = wl_registry_bind(wl_registry, name, &river_layout_manager_v3_interface, version);
-	} else if (strcmp(interface, wl_output_interface.name) == 0) {
-		if (!displ->layout_manager) {
-			log_error("Cannot create layout for output, missing river layout mananger.");
-			exit(EXIT_FAILURE);
-		}
-
-		struct Output *output = calloc(1, sizeof(struct Output));
-		slist_append(&displ->outputs, output);
-		// TODO fetch and connect output
-		// river_layout_manager_v3_get_layout(displ->layout_manager, data, "river-xmonadwm");
-	}
-}
-
-static void global_remove(void *data,
-		struct wl_registry *wl_registry,
-		uint32_t name) {
-	// TODO cleanup
-}
-
-static const struct wl_registry_listener listener = {
-	.global = global,
-	.global_remove = global_remove,
-};
-
-bool displ_connect(void) {
-	displ = calloc(1, sizeof(struct Displ));
-
-	if (!(displ->display = wl_display_connect(NULL))) {
+void displ_init(void) {
+	struct wl_display *wl_display = wl_display_connect(NULL);
+	if (!wl_display) {
 		log_error("Unable to connect to the compositor. Check or set the WAYLAND_DISPLAY environment variable.");
-		return false;
+		exit(EXIT_FAILURE);
 	}
 
-	displ->registry = wl_display_get_registry(displ->display);
+	displ = calloc(1, sizeof(struct Displ));
+	displ->wl_display = wl_display;
 
-	wl_registry_add_listener(displ->registry, &listener, displ);
+	displ->wl_registry = wl_display_get_registry(displ->wl_display);
 
-	if (wl_display_roundtrip(displ->display) == -1) {
-		log_error("wl_display_roundtrip failed -1");
-		return false;
+	wl_registry_add_listener(displ->wl_registry, registry_listener(), displ);
+
+	if (wl_display_roundtrip(displ->wl_display) == -1) {
+		log_error("First wl_display_roundtrip failed -1");
+		exit(EXIT_FAILURE);
 	}
 
 	if (!displ->layout_manager) {
-		log_error("Compositor does not support river_layout_v3 protocol.");
-		return false;
+		log_error("Compositor does not support river_layout_v3 protocol");
+		exit(EXIT_FAILURE);
+	}
+}
+
+void displ_destroy(void) {
+	if (!displ)
+		return;
+
+	for (struct SList *i = displ->outputs; i; i = i->nex) {
+		output_destroy(i->val);
+	}
+	slist_free(&displ->outputs);
+
+	if (displ->layout_manager) {
+		river_layout_manager_v3_destroy(displ->layout_manager);
+	}
+	if (displ->wl_registry) {
+		wl_registry_destroy(displ->wl_registry);
+	}
+	if (displ->wl_display) {
+		wl_display_disconnect(displ->wl_display);
 	}
 
-	return true;
+	free(displ);
+
+	displ = NULL;
 }
+
+void displ_add_output(struct wl_output *wl_output) {
+
+	struct Output *output = output_init(wl_output, displ->layout_manager);
+
+	if (output) {
+		slist_append(&displ->outputs, output);
+	}
+}
+

@@ -1,0 +1,17 @@
+.PHONY: build clean test copy
+
+all: copy
+
+build:
+	ninja -C build
+
+clean:
+	ninja -C build clean
+
+test:
+	ninja -C build test
+
+copy: build
+	ssh duke -C pkill -9 -f river-xmonadwm || true
+	scp build/river-xmonadwm duke:bin
+
