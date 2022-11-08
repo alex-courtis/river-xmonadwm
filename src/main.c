@@ -5,14 +5,10 @@
 #include <stdlib.h>
 #include <sys/signalfd.h>
 #include <unistd.h>
+#include <wayland-client-core.h>
 
 #include "displ.h"
 #include "log.h"
-#include "tag.h"
-
-#include "river-layout-v3-client-protocol.h"
-#include "inc1.h"
-#include "inc2.h"
 
 #define NPFDS 2
 static struct pollfd pfds[NPFDS];

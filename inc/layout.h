@@ -3,13 +3,11 @@
 
 #include <stdint.h>
 
-#include "river-layout-v3-client-protocol.h"
-
 #include "tag.h"
 
-void lt(void);
+struct river_layout_v3;
 
-void apply_view_dimensions(const struct Tag *tag,
+void push_view_dimensions(const enum Layout layout,
 		struct river_layout_v3 *river_layout,
 		const uint32_t view_count,
 		const uint32_t usable_width,

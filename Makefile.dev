@@ -1,4 +1,4 @@
-.PHONY: build clean test copy
+.PHONY: all build clean test copy iwyu
 
 all: copy
 
@@ -14,4 +14,7 @@ test:
 copy: build
 	ssh duke -C pkill -9 -f river-xmonadwm || true
 	scp build/river-xmonadwm duke:bin
+
+iwyu: build
+	iwyu-tool -p build/compile_commands.json -- -Xiwyu --no_comments -Xiwyu --no_fwd_decls
 

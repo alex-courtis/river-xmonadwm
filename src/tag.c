@@ -1,7 +1,7 @@
+#include <stdint.h>
 #include <stdlib.h>
-#include "limits.h"
+
 #include "list.h"
-#include "log.h"
 
 #include "tag.h"
 
@@ -17,12 +17,11 @@ struct Tag *tag_init(const uint32_t mask) {
 struct SList *tags_init(void) {
 	struct SList *tags = NULL;
 
-	const uint32_t tag_max = 1 << (NUM_TAGS - 1);
-
-	for (uint32_t m = 1; m > 0 && m <= tag_max; m = m << 1) {
+	// tag for all 32 bits of the uint32_t masks
+	for (int i = 0; i < 32; i++) {
 		struct Tag *tag = calloc(1, sizeof(struct Tag));
 		tag->layout = LAYOUT_DEFAULT;
-		tag->mask = m;
+		tag->mask = 1LL << i;
 		slist_append(&tags, tag);
 	}
 

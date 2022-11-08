@@ -3,7 +3,7 @@
 #include <setjmp.h>
 #include <cmocka.h>
 
-#include <tag.h>
+#include "tag.h"
 
 int setup(void **state) {
 	*state = tags_init();

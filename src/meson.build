@@ -7,7 +7,6 @@ src_files = files(
 	'log.c',
 	'main.c',
 	'output.c',
-	'src1.c',
-	'src2.c',
+	'river_layout.c',
 	'tag.c',
 	)

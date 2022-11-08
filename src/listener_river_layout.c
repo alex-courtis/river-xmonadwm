@@ -1,14 +1,13 @@
-#include <stdio.h>
+#include <stdbool.h>
+#include <stdint.h>
 #include <stdlib.h>
-#include <string.h>
+#include "river-layout-v3-client-protocol.h"
 
 #include "displ.h"
 #include "layout.h"
 #include "log.h"
-#include "list.h"
-#include "tag.h"
-
 #include "output.h"
+#include "tag.h"
 
 // Output data
 
@@ -26,10 +25,9 @@ static void layout_handle_layout_demand(void *data,
 		return;
 
 	struct Tag *tag = tag_first(output->tags, tags);
-	if (!tag)
-		return;
+	enum Layout layout = tag ? tag->layout : LAYOUT_DEFAULT;
 
-	apply_view_dimensions(tag, output->river_layout, view_count, usable_width, usable_height, serial);
+	push_view_dimensions(layout, output->river_layout, view_count, usable_width, usable_height, serial);
 
 	river_layout_v3_commit(output->river_layout, "[]=", serial);
 }

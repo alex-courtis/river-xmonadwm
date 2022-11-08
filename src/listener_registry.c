@@ -1,12 +1,15 @@
-#include <stdlib.h>
+#include <stdint.h>
 #include <string.h>
-
-#include "listeners.h"
-#include "log.h"
-#include "list.h"
-#include "output.h"
+#include <wayland-client-protocol.h>
+#include <wayland-util.h>
+#include "river-layout-v3-client-protocol.h"
 
 #include "displ.h"
+#include "list.h"
+#include "log.h"
+#include "output.h"
+
+#include "listeners.h"
 
 // Displ data
 
@@ -17,11 +20,9 @@ static void global(void *data,
 		uint32_t version) {
 	log_debug("listener_registry global %lu %s %lu", name, interface, version);
 
-	struct Displ *displ = data;
-
 	if (strcmp(interface, river_layout_manager_v3_interface.name) == 0) {
 
-		log_debug("listener_registry global     registering river layout manager");
+		log_debug("listener_registry global  registering river layout manager");
 
 		if (version <= RIVER_LAYOUT_V3_VERSION) {
 			displ->river_layout_manager = wl_registry_bind(wl_registry, name, &river_layout_manager_v3_interface, RIVER_LAYOUT_V3_VERSION);
@@ -37,11 +38,11 @@ static void global(void *data,
 			return;
 		}
 
-		log_debug("listener_registry global     registering output");
+		log_debug("listener_registry global  registering output");
 
 		struct wl_output *wl_output = wl_registry_bind(wl_registry, name, &wl_output_interface, version);
 
-		struct Output *output = output_init(wl_output, displ->river_layout_manager);
+		struct Output *output = output_init(wl_output, name, displ->river_layout_manager);
 		if (output) {
 			slist_append(&displ->outputs, output);
 		}
@@ -53,7 +54,18 @@ static void global_remove(void *data,
 		uint32_t name) {
 	log_debug("listener_registry global_remove %lu", name);
 
-	// TODO remove output
+	for (struct SList *i = displ->outputs; i; i = i->nex) {
+		struct Output *output = i->val;
+		if (output->name == name) {
+			log_debug("listener_registry global  removing output");
+
+			output_destroy(output);
+
+			slist_remove(&displ->outputs, &i);
+
+			break;
+		}
+	}
 }
 
 static const struct wl_registry_listener listener = {

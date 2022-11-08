@@ -3,9 +3,6 @@
 
 #include <stdint.h>
 
-// tags is a uint32_t
-#define NUM_TAGS 32
-
 enum Layout {
 	LAYOUT_MONOCLE,
 	LAYOUT_LEFT,

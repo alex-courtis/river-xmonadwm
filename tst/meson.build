@@ -8,17 +8,12 @@ tests = {
 			'../src/tag.c',
 			),
 		},
-	'test1': {
+	'layout': {
 		'src': files(
-			'../src/src1.c',
-			),
-		},
-	'test2': {
-		'src': files(
-			'../src/src2.c',
+			'../src/layout.c',
 			),
 		'link_args': [
-			'-Wl,--wrap=add',
+			'-Wl,--wrap=_river_layout_v3_push_view_dimensions',
 			]
 		},
 	}
@@ -29,7 +24,7 @@ foreach name, params: tests
 		'@0@.c'.format(name),
 		params['src'],
 		include_directories: includes,
-		dependencies: [cmocka, client_protos],
+		dependencies: cmocka,
 		link_args : params.get('link_args', ''),
 		)
 	test(name, exe, verbose: true)

@@ -1,10 +1,13 @@
+#include <stdbool.h>
 #include <stdlib.h>
-#include <string.h>
+#include <wayland-client-core.h>
+#include <wayland-client-protocol.h>
 
 #include "list.h"
 #include "listeners.h"
 #include "log.h"
 #include "output.h"
+#include "river_layout.h"
 
 #include "displ.h"
 
@@ -51,7 +54,7 @@ void displ_destroy(void) {
 	slist_free_vals(&displ->outputs, output_destroy);
 
 	if (displ->river_layout_manager) {
-		river_layout_manager_v3_destroy(displ->river_layout_manager);
+		_river_layout_manager_v3_destroy(displ->river_layout_manager);
 	}
 	if (displ->wl_registry) {
 		wl_registry_destroy(displ->wl_registry);

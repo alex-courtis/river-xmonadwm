@@ -2,9 +2,6 @@
 #define DISPL_H
 
 #include <stdbool.h>
-#include <wayland-client-protocol.h>
-
-#include "river-layout-v3-client-protocol.h"
 
 extern struct Displ *displ;
 
