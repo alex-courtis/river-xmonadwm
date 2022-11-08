@@ -1,0 +1,61 @@
+#include <stdlib.h>
+#include "limits.h"
+#include "list.h"
+#include "log.h"
+
+#include "tag.h"
+
+struct Tag *tag_init(const uint32_t mask) {
+	struct Tag *tag = calloc(1, sizeof(struct Tag));
+
+	tag->layout = LAYOUT_DEFAULT;
+	tag->mask = mask;
+
+	return tag;
+}
+
+struct SList *tags_init(void) {
+	struct SList *tags = NULL;
+
+	const uint32_t tag_max = 1 << (NUM_TAGS - 1);
+
+	for (uint32_t m = 1; m > 0 && m <= tag_max; m = m << 1) {
+		struct Tag *tag = calloc(1, sizeof(struct Tag));
+		tag->layout = LAYOUT_DEFAULT;
+		tag->mask = m;
+		slist_append(&tags, tag);
+	}
+
+	return tags;
+}
+
+void tag_destroy(void *t) {
+	if (!t)
+		return;
+
+	free(t);
+}
+
+void tags_destroy(struct SList *tags) {
+	if (!tags)
+		return;
+
+	slist_free_vals(&tags, tag_destroy);
+}
+
+struct Tag *tag_first(struct SList *tags, const uint32_t mask) {
+	if (!tags) {
+		return NULL;
+	}
+
+	for (struct SList *i = tags; i; i = i->nex) {
+		struct Tag *tag = i->val;
+		if (mask & tag->mask) {
+			return i->val;
+		}
+	}
+
+	// default to first
+	return tags->val;
+}
+

@@ -1,6 +1,13 @@
 cmocka = dependency('cmocka')
 
 tests = {
+	'tag': {
+		'src': files(
+			'../src/log.c',
+			'../src/list.c',
+			'../src/tag.c',
+			),
+		},
 	'test1': {
 		'src': files(
 			'../src/src1.c',
@@ -25,6 +32,6 @@ foreach name, params: tests
 		dependencies: [cmocka, client_protos],
 		link_args : params.get('link_args', ''),
 		)
-	test(name, exe)
+	test(name, exe, verbose: true)
 endforeach
 

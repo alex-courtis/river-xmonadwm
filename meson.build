@@ -16,6 +16,7 @@ add_project_arguments(cc.get_supported_arguments([
 	'-Wno-unused-parameter',
 	'-Wold-style-definition',
 	'-Wstrict-prototypes',
+	'-DRIVER_LAYOUT_V3_VERSION=2',
 	]), language: 'c')
 
 includes = [include_directories('inc')]

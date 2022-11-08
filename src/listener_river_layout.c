@@ -3,8 +3,10 @@
 #include <string.h>
 
 #include "displ.h"
+#include "layout.h"
 #include "log.h"
 #include "list.h"
+#include "tag.h"
 
 #include "output.h"
 
@@ -20,21 +22,14 @@ static void layout_handle_layout_demand(void *data,
 	log_debug("layout_handle_layout_demand %lu %lux%lu 0x%lux", view_count, usable_width, usable_height, tags);
 
 	struct Output *output = (struct Output*)data;
+	if (!output)
+		return;
 
-	uint32_t x = 100;
-	uint32_t y = 50;
+	struct Tag *tag = tag_first(output->tags, tags);
+	if (!tag)
+		return;
 
-	for (uint32_t i = 0; i < view_count; i++) {
-		river_layout_v3_push_view_dimensions(output->river_layout,
-				x,
-				y,
-				400,
-				300,
-				serial);
-
-		x += 100;
-		y += 50;
-	}
+	apply_view_dimensions(tag, output->river_layout, view_count, usable_width, usable_height, serial);
 
 	river_layout_v3_commit(output->river_layout, "[]=", serial);
 }
@@ -43,6 +38,7 @@ static void layout_handle_namespace_in_use(void *data,
 		struct river_layout_v3 *river_layout_v3) {
 	log_error("river namespace in use, exiting");
 	displ->terminate = true;
+	displ->rc = EXIT_FAILURE;
 }
 
 static void layout_handle_user_command(void *data,

@@ -3,6 +3,7 @@
 
 #include "listeners.h"
 #include "log.h"
+#include "tag.h"
 
 #include "output.h"
 
@@ -25,21 +26,27 @@ struct Output *output_init(struct wl_output *wl_output, struct river_layout_mana
 	struct Output *output = calloc(1, sizeof(struct Output));
 	output->wl_output = wl_output;
 	output->river_layout = river_layout;
+	output->tags = tags_init();
 
 	river_layout_v3_add_listener(river_layout, river_layout_listener(), output);
 
 	return output;
 }
 
-void output_destroy(struct Output *output) {
-	if (!output)
+void output_destroy(void *o) {
+	if (!o)
 		return;
+
+	struct Output *output = o;
 
 	if (output->river_layout) {
 		river_layout_v3_destroy(output->river_layout);
 	}
 	if (output->wl_output) {
 		wl_output_destroy(output->wl_output);
+	}
+	if (output->tags) {
+		tags_destroy(output->tags);
 	}
 
 	free(output);

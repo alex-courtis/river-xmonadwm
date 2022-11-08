@@ -8,10 +8,11 @@
 struct Output {
 	struct wl_output *wl_output;
 	struct river_layout_v3 *river_layout;
+	struct SList *tags;
 };
 
 struct Output *output_init(struct wl_output *wl_output, struct river_layout_manager_v3 *river_layout_manager);
 
-void output_destroy(struct Output *output);
+void output_destroy(void *o);
 
 #endif // OUTPUT_H

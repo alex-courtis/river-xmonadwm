@@ -9,19 +9,19 @@
 extern struct Displ *displ;
 
 struct Displ {
-	// global
+	// global singletons
 	struct wl_display *wl_display;
 	struct wl_registry *wl_registry;
+	struct river_layout_manager_v3 *river_layout_manager;
 
-	// river
-	struct river_layout_manager_v3 *layout_manager;
 	struct SList *outputs;
 
 	// state
 	bool terminate;
+	int rc;
 };
 
-void displ_init(void);
+bool displ_init(void);
 
 void displ_destroy(void);
 

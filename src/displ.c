@@ -10,42 +10,48 @@
 
 struct Displ *displ = NULL;
 
-void displ_init(void) {
-	struct wl_display *wl_display = wl_display_connect(NULL);
-	if (!wl_display) {
+bool displ_init(void) {
+	displ = calloc(1, sizeof(struct Displ));
+
+	displ->wl_display = wl_display_connect(NULL);
+	if (!displ->wl_display) {
 		log_error("Unable to connect to the compositor. Check or set the WAYLAND_DISPLAY environment variable.");
-		exit(EXIT_FAILURE);
+		goto error;
 	}
 
-	displ = calloc(1, sizeof(struct Displ));
-	displ->wl_display = wl_display;
-
 	displ->wl_registry = wl_display_get_registry(displ->wl_display);
+	if (!displ->wl_registry) {
+		log_error("wl_display_get_registry failed, exiting");
+		goto error;
+	}
 
 	wl_registry_add_listener(displ->wl_registry, registry_listener(), displ);
 
 	if (wl_display_roundtrip(displ->wl_display) == -1) {
-		log_error("First wl_display_roundtrip failed -1");
-		exit(EXIT_FAILURE);
+		log_error("wl_display_roundtrip failed, exiting");
+		goto error;
 	}
 
-	if (!displ->layout_manager) {
-		log_error("Compositor does not support river_layout_v3 protocol");
-		exit(EXIT_FAILURE);
+	if (!displ->river_layout_manager) {
+		log_error("Compositor does not support river_layout_v3 protocol, exiting");
+		goto error;
 	}
+
+	return true;
+
+error:
+	free(displ);
+	return false;
 }
 
 void displ_destroy(void) {
 	if (!displ)
 		return;
 
-	for (struct SList *i = displ->outputs; i; i = i->nex) {
-		output_destroy(i->val);
-	}
-	slist_free(&displ->outputs);
+	slist_free_vals(&displ->outputs, output_destroy);
 
-	if (displ->layout_manager) {
-		river_layout_manager_v3_destroy(displ->layout_manager);
+	if (displ->river_layout_manager) {
+		river_layout_manager_v3_destroy(displ->river_layout_manager);
 	}
 	if (displ->wl_registry) {
 		wl_registry_destroy(displ->wl_registry);

@@ -23,12 +23,17 @@ static void global(void *data,
 
 		log_debug("listener_registry global     registering river layout manager");
 
-		displ->layout_manager = wl_registry_bind(wl_registry, name, &river_layout_manager_v3_interface, version);
+		if (version <= RIVER_LAYOUT_V3_VERSION) {
+			displ->river_layout_manager = wl_registry_bind(wl_registry, name, &river_layout_manager_v3_interface, RIVER_LAYOUT_V3_VERSION);
+		} else {
+			log_error("Invalid river_layout_manager_v3_interface version %d expected %d, exiting", version, RIVER_LAYOUT_V3_VERSION);
+			return;
+		}
 
 	} else if (strcmp(interface, wl_output_interface.name) == 0) {
 
-		if (!displ->layout_manager) {
-			log_error("Cannot create layout for output, missing river layout mananger.");
+		if (!displ->river_layout_manager) {
+			log_error("Cannot create layout for output, missing river layout mananger, exiting");
 			return;
 		}
 
@@ -36,7 +41,7 @@ static void global(void *data,
 
 		struct wl_output *wl_output = wl_registry_bind(wl_registry, name, &wl_output_interface, version);
 
-		struct Output *output = output_init(wl_output, displ->layout_manager);
+		struct Output *output = output_init(wl_output, displ->river_layout_manager);
 		if (output) {
 			slist_append(&displ->outputs, output);
 		}
@@ -46,7 +51,9 @@ static void global(void *data,
 static void global_remove(void *data,
 		struct wl_registry *wl_registry,
 		uint32_t name) {
-	// NOP: we end on failed wl_display_dispatch
+	log_debug("listener_registry global_remove %lu", name);
+
+	// TODO remove output
 }
 
 static const struct wl_registry_listener listener = {
