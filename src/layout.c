@@ -1,39 +1,101 @@
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdio.h>
+#include <string.h>
 
 #include "river_layout.h"
 #include "tag.h"
 
 #include "layout.h"
 
-void push_stack_vertical(struct river_layout_v3 *river_layout,
-		const uint32_t stack_count,
-		const uint32_t x,
-		const uint32_t width,
+void calc_master_stack(const enum Layout layout,
+		const uint32_t view_count,
+		const uint32_t usable_width,
 		const uint32_t usable_height,
-		const uint32_t serial) {
+		struct Box *master,
+		struct Box *stack) {
 
-	if (stack_count == 0)
-		return;
+	memset(master, 0, sizeof(*master));
+	memset(stack, 0, sizeof(*master));
 
-	uint32_t height;
-	uint32_t y;
+	switch (view_count) {
+		case 0:
+			return;
+		case 1:
+			master->width = usable_width;
+			master->height = usable_height;
+			return;
+		default:
+			break;
+	}
 
-	height = (usable_height + 1) / stack_count;
+	// size
+	switch(layout) {
+		case LAYOUT_LEFT:
+		case LAYOUT_RIGHT:
+			master->width = (usable_width + 1) / 2;
+			master->height = usable_height;
+			stack->width = usable_width - master->width;
+			stack->height = usable_height;
+			break;
 
-	y = 0;
-	for (uint32_t i = 0; i < stack_count; i++) {
-		if (i == stack_count - 1) {
-			// bottom of stack takes remaining room to deal with rounding
-			height = usable_height - y;
-		}
-		_river_layout_v3_push_view_dimensions(river_layout, x, y, width, height, serial);
-		y += height;
+		case LAYOUT_TOP:
+		case LAYOUT_BOTTOM:
+			master->width = usable_width;
+			master->height = (usable_height + 1) / 2;
+			stack->width = usable_width;
+			stack->height = usable_height - master->height;
+			break;
+
+		default:
+			break;
+	}
+
+	// master position
+	switch(layout) {
+		case LAYOUT_LEFT:
+		case LAYOUT_TOP:
+			master->x = 0;
+			master->y = 0;
+			break;
+
+		case LAYOUT_RIGHT:
+			master->x = usable_width - master->width;
+			master->y = 0;
+			break;
+
+		case LAYOUT_BOTTOM:
+			master->x = 0;
+			master->y = master->height;
+			break;
+
+		default:
+			break;
+	}
+
+	// stack position
+	switch(layout) {
+		case LAYOUT_LEFT:
+			stack->x = master->width;
+			stack->y = 0;
+			break;
+
+		case LAYOUT_TOP:
+			stack->x = 0;
+			stack->y = master->height;
+			break;
+
+		case LAYOUT_RIGHT:
+		case LAYOUT_BOTTOM:
+			stack->x = 0;
+			stack->y = 0;
+			break;
+
+		default:
+			break;
 	}
 }
 
-void push_layout_monocle(struct river_layout_v3 *river_layout,
+void push_monocle(struct river_layout_v3 *river_layout,
 		const uint32_t view_count,
 		const uint32_t usable_width,
 		const uint32_t usable_height,
@@ -43,57 +105,133 @@ void push_layout_monocle(struct river_layout_v3 *river_layout,
 	}
 }
 
-void push_layout_lr(const bool left,
-		struct river_layout_v3 *river_layout,
-		const uint32_t view_count,
-		const uint32_t usable_width,
-		const uint32_t usable_height,
+void push_linear(struct river_layout_v3 *river_layout,
+		const uint32_t stack_count,
+		const struct Box usable,
+		const bool left_to_right,
 		const uint32_t serial) {
 
-	if (view_count == 0)
+	if (stack_count == 0)
 		return;
 
-	int32_t x;
+	uint32_t x = usable.x;
+	uint32_t y = usable.y;
 	uint32_t width;
 	uint32_t height;
 
-	// main left or right
-	width = usable_width;
-	if (view_count > 1) {
-		width = (width + 1) / 2;
-	}
-	height = usable_height;
-	if (left) {
-		x = 0;
+	if (left_to_right) {
+		width = (usable.width + 1) / stack_count;
+		height = usable.height;
 	} else {
-		x = usable_width - width;
+		width = usable.width;
+		height = (usable.height + 1) / stack_count;
 	}
-	_river_layout_v3_push_view_dimensions(river_layout, x, 0, width, height, serial);
 
-	// stack remaining
-	if (left) {
-		x = width;
-	} else {
-		x = 0;
+	for (uint32_t i = 0; i < stack_count - 1; i++) {
+		if (i == stack_count - 1) {
+			height = usable.height + usable.y - y;
+		}
+
+		_river_layout_v3_push_view_dimensions(river_layout, x, y, width, height, serial);
+
+		if (left_to_right) {
+			x += width;
+		} else {
+			y += height;
+		}
 	}
-	push_stack_vertical(river_layout, view_count - 1, x, usable_width - width, usable_height, serial);
+
+	// bottom of stack takes remaining room to deal with rounding
+	if (left_to_right) {
+		width = usable.width + usable.x - x;
+	} else {
+		height = usable.height + usable.y - y;
+	}
+
+	_river_layout_v3_push_view_dimensions(river_layout, x, y, width, height, serial);
 }
 
-void push_view_dimensions(const enum Layout layout,
+void push_dwindle(struct river_layout_v3 *river_layout,
+		const uint32_t stack_count,
+		const struct Box usable,
+		const enum Ordinal ordinal,
+		const bool vertical,
+		const uint32_t serial) {
+
+	if (stack_count == 0) {
+		return;
+	} else if (stack_count == 1) {
+		_river_layout_v3_push_view_dimensions(river_layout, usable.x, usable.y, usable.width, usable.height, serial);
+		return;
+	}
+
+	struct Box this = usable;
+	struct Box remaining = usable;
+
+	if (vertical) {
+		this.height = (usable.height + 1) / 2;
+		switch (ordinal) {
+			case NE:
+			case NW:
+				this.y += usable.height - this.height;
+				remaining.height -= this.height;
+				break;
+			case SE:
+			case SW:
+				remaining.y += this.height;
+				remaining.height -= this.height;
+				break;
+		}
+	} else {
+		this.width = (usable.width + 1) / 2;
+		switch (ordinal) {
+			case SW:
+			case NW:
+				this.x += usable.width - this.width;
+				remaining.width -= this.width;
+				break;
+			case NE:
+			case SE:
+				remaining.x += this.width;
+				remaining.width -= this.width;
+				break;
+		}
+	}
+
+	_river_layout_v3_push_view_dimensions(river_layout, this.x, this.y, this.width, this.height, serial);
+
+	push_dwindle(river_layout, stack_count - 1, remaining, ordinal, !vertical, serial);
+}
+
+void push_views(const enum Layout layout,
 		struct river_layout_v3 *river_layout,
 		const uint32_t view_count,
 		const uint32_t usable_width,
 		const uint32_t usable_height,
 		const uint32_t serial) {
+
+	struct Box master = { 0 };
+	struct Box stack = { 0 };
+
+	calc_master_stack(layout, view_count, usable_width, usable_height, &master, &stack);
 
 	switch(layout) {
 		case LAYOUT_LEFT:
 		case LAYOUT_RIGHT:
-			push_layout_lr(layout == LAYOUT_LEFT, river_layout, view_count, usable_width, usable_height, serial);
+			// top to bottom
+			push_linear(river_layout, 1, master, false, serial);
+			push_linear(river_layout, view_count - 1, stack, false, serial);
+			break;
+		case LAYOUT_TOP:
+		case LAYOUT_BOTTOM:
+			// left to right
+			push_linear(river_layout, 1, master, true, serial);
+			push_linear(river_layout, view_count - 1, stack, true, serial);
 			break;
 		case LAYOUT_MONOCLE:
-		default:
-			push_layout_monocle(river_layout, view_count, usable_width, usable_height, serial);
+			push_monocle(river_layout, view_count, usable_width, usable_height, serial);
+			break;
+		case LAYOUT_MID:
 			break;
 	}
 }

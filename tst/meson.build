@@ -3,7 +3,6 @@ cmocka = dependency('cmocka')
 tests = {
 	'tag': {
 		'src': files(
-			'../src/log.c',
 			'../src/list.c',
 			'../src/tag.c',
 			),

@@ -27,7 +27,7 @@ static void layout_handle_layout_demand(void *data,
 	struct Tag *tag = tag_first(output->tags, tags);
 	enum Layout layout = tag ? tag->layout : LAYOUT_DEFAULT;
 
-	push_view_dimensions(layout, output->river_layout, view_count, usable_width, usable_height, serial);
+	push_views(layout, output->river_layout, view_count, usable_width, usable_height, serial);
 
 	river_layout_v3_commit(output->river_layout, "[]=", serial);
 }
