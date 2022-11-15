@@ -22,14 +22,14 @@ void calc_master_stack__zero(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 0, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 1, .layout_cur = LEFT, };
+	struct Tag tag = { .count_master = 1, .layout_cur = LEFT, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 0, .y = 0, .width = 0, .height = 0, };
+	struct Box master_expected = { 0, 0, 0, 0, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 0, .y = 0, .width = 0, .height = 0, };
+	struct Box stack_expected = { 0, 0, 0, 0, };
 	assert_box_equal(&stack, &stack_expected);
 }
 
@@ -37,14 +37,14 @@ void calc_master_stack__one_count_two(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 1, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 2, .layout_cur = LEFT, };
+	struct Tag tag = { .count_master = 2, .layout_cur = LEFT, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 0, .y = 0, .width = 9, .height = 5, };
+	struct Box master_expected = { 0, 0, 9, 5, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 0, .y = 0, .width = 0, .height = 0, };
+	struct Box stack_expected = { 0, 0, 0, 0, };
 	assert_box_equal(&stack, &stack_expected);
 }
 
@@ -52,14 +52,14 @@ void calc_master_stack__two_count_two(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 2, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 2, .layout_cur = LEFT, };
+	struct Tag tag = { .count_master = 2, .layout_cur = LEFT, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 0, .y = 0, .width = 9, .height = 5, };
+	struct Box master_expected = { 0, 0, 9, 5, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 0, .y = 0, .width = 0, .height = 0, };
+	struct Box stack_expected = { 0, 0, 0, 0, };
 	assert_box_equal(&stack, &stack_expected);
 }
 
@@ -67,14 +67,14 @@ void calc_master_stack__three_count_two(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 3, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 2, .layout_cur = LEFT, };
+	struct Tag tag = { .count_master = 2, .layout_cur = LEFT, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 0, .y = 0, .width = 5, .height = 5, };
+	struct Box master_expected = { 0, 0, 5, 5, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 5, .y = 0, .width = 4, .height = 5, };
+	struct Box stack_expected = { 5, 0, 4, 5, };
 	assert_box_equal(&stack, &stack_expected);
 }
 
@@ -82,14 +82,14 @@ void calc_master_stack__one_left(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 1, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 1, .layout_cur = LEFT, };
+	struct Tag tag = { .count_master = 1, .layout_cur = LEFT, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 0, .y = 0, .width = 9, .height = 5, };
+	struct Box master_expected = { 0, 0, 9, 5, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 0, .y = 0, .width = 0, .height = 0, };
+	struct Box stack_expected = { 0, 0, 0, 0, };
 	assert_box_equal(&stack, &stack_expected);
 }
 
@@ -97,14 +97,14 @@ void calc_master_stack__many_left(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 7, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 1, .layout_cur = LEFT, };
+	struct Tag tag = { .count_master = 1, .layout_cur = LEFT, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 0, .y = 0, .width = 5, .height = 5, };
+	struct Box master_expected = { 0, 0, 5, 5, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 5, .y = 0, .width = 4, .height = 5, };
+	struct Box stack_expected = { 5, 0, 4, 5, };
 	assert_box_equal(&stack, &stack_expected);
 }
 
@@ -112,14 +112,14 @@ void calc_master_stack__one_right(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 1, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 1, .layout_cur = LEFT, };
+	struct Tag tag = { .count_master = 1, .layout_cur = LEFT, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 0, .y = 0, .width = 9, .height = 5, };
+	struct Box master_expected = { 0, 0, 9, 5, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 0, .y = 0, .width = 0, .height = 0, };
+	struct Box stack_expected = { 0, 0, 0, 0, };
 	assert_box_equal(&stack, &stack_expected);
 }
 
@@ -127,14 +127,14 @@ void calc_master_stack__many_right(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 2, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 1, .layout_cur = RIGHT, };
+	struct Tag tag = { .count_master = 1, .layout_cur = RIGHT, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 4, .y = 0, .width = 5, .height = 5, };
+	struct Box master_expected = { 4, 0, 5, 5, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 0, .y = 0, .width = 4, .height = 5, };
+	struct Box stack_expected = { 0, 0, 4, 5, };
 	assert_box_equal(&stack, &stack_expected);
 }
 
@@ -142,14 +142,14 @@ void calc_master_stack__one_top(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 1, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 1, .layout_cur = TOP, };
+	struct Tag tag = { .count_master = 1, .layout_cur = TOP, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 0, .y = 0, .width = 9, .height = 5, };
+	struct Box master_expected = { 0, 0, 9, 5, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 0, .y = 0, .width = 0, .height = 0, };
+	struct Box stack_expected = { 0, 0, 0, 0, };
 	assert_box_equal(&stack, &stack_expected);
 }
 
@@ -157,14 +157,14 @@ void calc_master_stack__many_top(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 2, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 1, .layout_cur = TOP, };
+	struct Tag tag = { .count_master = 1, .layout_cur = TOP, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 0, .y = 0, .width = 9, .height = 3, };
+	struct Box master_expected = { 0, 0, 9, 3, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 0, .y = 3, .width = 9, .height = 2, };
+	struct Box stack_expected = { 0, 3, 9, 2, };
 	assert_box_equal(&stack, &stack_expected);
 }
 
@@ -172,14 +172,14 @@ void calc_master_stack__one_bottom(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 1, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 1, .layout_cur = BOTTOM, };
+	struct Tag tag = { .count_master = 1, .layout_cur = BOTTOM, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 0, .y = 0, .width = 9, .height = 5, };
+	struct Box master_expected = { 0, 0, 9, 5, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 0, .y = 0, .width = 0, .height = 0, };
+	struct Box stack_expected = { 0, 0, 0, 0, };
 	assert_box_equal(&stack, &stack_expected);
 }
 
@@ -187,14 +187,14 @@ void calc_master_stack__many_bottom(void **state) {
 	struct Box master, stack;
 
 	struct Demand demand = { .view_count = 2, .usable_width = 9, .usable_height = 5, };
-	struct Tag tag = { .count_master = 1, .layout_cur = BOTTOM, };
+	struct Tag tag = { .count_master = 1, .layout_cur = BOTTOM, .ratio_master = 0.5, };
 
-	calc_master_stack(demand, &tag, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { .x = 0, .y = 3, .width = 9, .height = 3, };
+	struct Box master_expected = { 0, 3, 9, 3, };
 	assert_box_equal(&master, &master_expected);
 
-	struct Box stack_expected = { .x = 0, .y = 0, .width = 9, .height = 2, };
+	struct Box stack_expected = { 0, 0, 9, 2, };
 	assert_box_equal(&stack, &stack_expected);
 }
 

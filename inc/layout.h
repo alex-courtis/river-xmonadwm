@@ -17,7 +17,7 @@ struct Demand {
 	const uint32_t serial;
 };
 
-void push_views(const struct Demand demand, const struct Tag *tag);
+void push_views(const struct Demand demand, const struct Tag tag);
 
 #endif // LAYOUT_H
 

@@ -3,6 +3,21 @@
 
 #include <stdint.h>
 
+#define LAYOUT_DEFAULT LEFT
+
+#define COUNT_MASTER_MIN 1
+#define COUNT_MASTER_DEFAULT 1
+
+#define RATIO_MASTER_MIN 0.1
+#define RATIO_MASTER_DEFAULT 0.5
+#define RATIO_MASTER_MAX 0.9
+
+#define RATIO_SPLIT_MIN 0.1
+#define RATIO_SPLIT_DEFAULT 0.5
+#define RATIO_SPLIT_MAX 0.9
+
+#define LOG_THRESHOLD_DEFAULT INFO
+
 enum Layout {
 	MONOCLE = 1,
 	LEFT,
@@ -23,7 +38,7 @@ struct Config {
 	enum Layout layout;
 	uint32_t count_master;
 	double ratio_master;
-	double ratio_stack;
+	double ratio_split;
 	enum LogThreshold log_threshold;
 };
 

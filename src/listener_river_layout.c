@@ -35,7 +35,7 @@ static void layout_handle_layout_demand(void *data,
 
 	struct Tag *tag = tag_first(output->tags, tags);
 
-	push_views(demand, tag);
+	push_views(demand, *tag);
 
 	river_layout_v3_commit(output->river_layout, "[]=", serial);
 }

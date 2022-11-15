@@ -17,9 +17,9 @@ struct Config *cfg;
 #define RATIO_MASTER_DEFAULT 0.5
 #define RATIO_MASTER_MAX 0.9
 
-#define RATIO_STACK_MIN 0.1
-#define RATIO_STACK_DEFAULT 0.5
-#define RATIO_STACK_MAX 0.9
+#define RATIO_SPLIT_MIN 0.1
+#define RATIO_SPLIT_DEFAULT 0.5
+#define RATIO_SPLIT_MAX 0.9
 
 #define LOG_THRESHOLD_DEFAULT INFO
 
@@ -114,14 +114,14 @@ void usage(FILE *stream) {
 			"  -l, --la[yout]        <%s|%s|%s|%s|%s|%s>                     default %s\n"
 			"  -c, --c[out-master]   <int>                                master view count  default %d       1 <= count\n"
 			"  -r, --ratio-m[aster]  <float>                              master area ratio  default %.1g   %.1g <= ratio <= %.1g\n"
-			"  -R, --ratio-s[tack]   <float>                              stack view ratio   default %.1g   %.1g <= ratio <= %.1g\n"
+			"  -R, --ratio-s[plit]   <float>                              view split ratio   default %.1g   %.1g <= ratio <= %.1g\n"
 			"\n"
 			"  -h, --h[elp]\n"
 			"  -L, --lo[g-threshold] <%s|%s|%s|%s>                              default %s\n"
 			"  -v, --v[ersion]\n",
 			layout_name(MONOCLE), layout_name(LEFT), layout_name(RIGHT), layout_name(TOP), layout_name(BOTTOM), layout_name(MID), layout_name(LAYOUT_DEFAULT),
 			COUNT_MASTER_DEFAULT,
-			RATIO_STACK_DEFAULT, RATIO_STACK_MIN, RATIO_STACK_MAX,
+			RATIO_SPLIT_DEFAULT, RATIO_SPLIT_MIN, RATIO_SPLIT_MAX,
 			RATIO_MASTER_DEFAULT, RATIO_MASTER_MIN, RATIO_MASTER_MAX,
 			log_threshold_name(DEBUG), log_threshold_name(INFO), log_threshold_name(WARNING), log_threshold_name(ERROR), log_threshold_name(LOG_THRESHOLD_DEFAULT)
 		   );
@@ -134,7 +134,7 @@ void config_parse(int argc, char **argv) {
 		{ "layout",        required_argument, 0, 'l' },
 		{ "count-master",  required_argument, 0, 'c' },
 		{ "ratio-master",  required_argument, 0, 'r' },
-		{ "ratio-stack",   required_argument, 0, 'R' },
+		{ "ratio-split",   required_argument, 0, 'R' },
 		{ "help",          no_argument,       0, 'h' },
 		{ "log-threshold", required_argument, 0, 'L' },
 		{ "version",       no_argument,       0, 'v' },
@@ -176,9 +176,9 @@ void config_parse(int argc, char **argv) {
 				}
 				break;
 			case 'R':
-				cfg->ratio_stack = strtod(optarg, NULL);
-				if (cfg->ratio_stack < RATIO_STACK_MIN || cfg->ratio_stack > RATIO_STACK_MAX) {
-					fprintf(stderr, "invalid --ratio-stack %s\n\n", optarg);
+				cfg->ratio_split = strtod(optarg, NULL);
+				if (cfg->ratio_split < RATIO_SPLIT_MIN || cfg->ratio_split > RATIO_SPLIT_MAX) {
+					fprintf(stderr, "invalid --ratio-split %s\n\n", optarg);
 					usage(stderr);
 					exit(EXIT_FAILURE);
 				}
@@ -211,7 +211,7 @@ void config_print(void) {
 
 	fprintf(stdout, "layout         %s\n", layout_name(cfg->layout));
 	fprintf(stdout, "ratio master   %g\n", cfg->ratio_master);
-	fprintf(stdout, "ratio stack    %g\n", cfg->ratio_stack);
+	fprintf(stdout, "ratio split    %g\n", cfg->ratio_split);
 	fprintf(stdout, "master count   %d\n", cfg->count_master);
 	fprintf(stdout, "log threshold  %s\n", log_threshold_name(cfg->log_threshold));
 }

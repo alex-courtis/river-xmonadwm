@@ -31,13 +31,13 @@ enum Ordinal {
 //
 // private prototypes
 //
-void calc_master_stack(const struct Demand demand, const struct Tag *tag, struct Box *master, struct Box *stack);
+void calc_master_stack(const struct Demand demand, const struct Tag tag, struct Box *master, struct Box *stack);
 
 void push_monocle(const struct Demand demand);
 
-void push_linear(const struct Demand demand, const uint32_t stack_count, const struct Box usable, const bool left_to_right);
+void push_linear(const struct Demand demand, const struct Tag tag, const uint32_t stack_count, const struct Box usable, const bool left_to_right);
 
-void push_dwindle(const struct Demand demand, const uint32_t stack_count, const struct Box usable, const enum Ordinal ordinal, const bool vertical);
+void push_dwindle(const struct Demand demand, const struct Tag tag, const uint32_t stack_count, const struct Box usable, const enum Ordinal ordinal, const bool vertical);
 
 //
 // wrappers

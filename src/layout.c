@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
+#include <stdio.h>
 
 #include "config.h"
 #include "river_layout.h"
@@ -22,7 +23,7 @@ enum Ordinal {
 	NW,
 };
 
-void calc_master_stack(const struct Demand demand, const struct Tag *tag, struct Box *master, struct Box *stack) {
+void calc_master_stack(const struct Demand demand, const struct Tag tag, struct Box *master, struct Box *stack) {
 
 	memset(master, 0, sizeof(*master));
 	memset(stack, 0, sizeof(*master));
@@ -31,17 +32,22 @@ void calc_master_stack(const struct Demand demand, const struct Tag *tag, struct
 		return;
 	}
 
-	if (tag->count_master >= demand.view_count) {
+	if (tag.count_master >= demand.view_count) {
 		master->width = demand.usable_width;
 		master->height = demand.usable_height;
 		return;
 	}
 
+	double ratio = tag.ratio_master;
+	if (ratio < RATIO_MASTER_MIN || ratio > RATIO_MASTER_MAX) {
+		ratio = RATIO_MASTER_DEFAULT;
+	}
+
 	// size
-	switch(tag->layout_cur) {
+	switch(tag.layout_cur) {
 		case LEFT:
 		case RIGHT:
-			master->width = (demand.usable_width + 1) / 2;
+			master->width = (demand.usable_width + 1) * tag.ratio_master;
 			master->height = demand.usable_height;
 			stack->width = demand.usable_width - master->width;
 			stack->height = demand.usable_height;
@@ -50,7 +56,7 @@ void calc_master_stack(const struct Demand demand, const struct Tag *tag, struct
 		case TOP:
 		case BOTTOM:
 			master->width = demand.usable_width;
-			master->height = (demand.usable_height + 1) / 2;
+			master->height = (demand.usable_height + 1) * tag.ratio_master;
 			stack->width = demand.usable_width;
 			stack->height = demand.usable_height - master->height;
 			break;
@@ -60,7 +66,7 @@ void calc_master_stack(const struct Demand demand, const struct Tag *tag, struct
 	}
 
 	// master position
-	switch(tag->layout_cur) {
+	switch(tag.layout_cur) {
 		case LEFT:
 		case TOP:
 			master->x = 0;
@@ -82,7 +88,7 @@ void calc_master_stack(const struct Demand demand, const struct Tag *tag, struct
 	}
 
 	// stack position
-	switch(tag->layout_cur) {
+	switch(tag.layout_cur) {
 		case LEFT:
 			stack->x = master->width;
 			stack->y = 0;
@@ -110,7 +116,8 @@ void push_monocle(const struct Demand demand) {
 	}
 }
 
-void push_linear(const struct Demand demand, const uint32_t stack_count, const struct Box usable, const bool left_to_right) {
+// TODO remove
+void push_linear(const struct Demand demand, const struct Tag tag, const uint32_t stack_count, const struct Box usable, const bool left_to_right) {
 
 	if (stack_count == 0)
 		return;
@@ -152,7 +159,8 @@ void push_linear(const struct Demand demand, const uint32_t stack_count, const s
 	_river_layout_v3_push_view_dimensions(demand.river_layout, x, y, width, height, demand.serial);
 }
 
-void push_dwindle(const struct Demand demand, const uint32_t stack_count, const struct Box usable, const enum Ordinal ordinal, const bool vertical) {
+// TODO push_split, use stack ratio, master set different ordinal
+void push_dwindle(const struct Demand demand, const struct Tag tag, const uint32_t stack_count, const struct Box usable, const enum Ordinal ordinal, const bool vertical) {
 
 	if (stack_count == 0) {
 		return;
@@ -164,8 +172,13 @@ void push_dwindle(const struct Demand demand, const uint32_t stack_count, const 
 	struct Box this = usable;
 	struct Box remaining = usable;
 
+	double ratio = tag.ratio_stack;
+	if (ratio < RATIO_SPLIT_MIN || ratio > RATIO_SPLIT_MAX) {
+		ratio = RATIO_SPLIT_DEFAULT;
+	}
+
 	if (vertical) {
-		this.height = (usable.height + 1) / 2;
+		this.height = (usable.height + 1) * ratio;
 		switch (ordinal) {
 			case NE:
 			case NW:
@@ -179,7 +192,7 @@ void push_dwindle(const struct Demand demand, const uint32_t stack_count, const 
 				break;
 		}
 	} else {
-		this.width = (usable.width + 1) / 2;
+		this.width = (usable.width + 1) * ratio;
 		switch (ordinal) {
 			case SW:
 			case NW:
@@ -196,28 +209,28 @@ void push_dwindle(const struct Demand demand, const uint32_t stack_count, const 
 
 	_river_layout_v3_push_view_dimensions(demand.river_layout, this.x, this.y, this.width, this.height, demand.serial);
 
-	push_dwindle(demand, stack_count - 1, remaining, ordinal, !vertical);
+	push_dwindle(demand, tag, stack_count - 1, remaining, ordinal, !vertical);
 }
 
-void push_views(const struct Demand demand, const struct Tag *tag) {
+void push_views(const struct Demand demand, const struct Tag tag) {
 
 	struct Box master = { 0 };
 	struct Box stack = { 0 };
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	switch(tag->layout_cur) {
+	switch(tag.layout_cur) {
 		case LEFT:
 		case RIGHT:
 			// top to bottom
-			push_linear(demand, 1, master, false);
-			push_linear(demand, demand.view_count - 1, stack, false);
+			push_linear(demand, tag, tag.count_master, master, false);
+			push_linear(demand, tag, demand.view_count - tag.count_master, stack, false);
 			break;
 		case TOP:
 		case BOTTOM:
 			// left to right
-			push_linear(demand, 1, master, true);
-			push_linear(demand, demand.view_count - 1, stack, true);
+			push_linear(demand, tag, tag.count_master, master, true);
+			push_linear(demand, tag, demand.view_count - tag.count_master, stack, true);
 			break;
 		case MONOCLE:
 			push_monocle(demand);
