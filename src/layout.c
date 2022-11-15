@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <string.h>
 
+#include "config.h"
 #include "river_layout.h"
-#include "tag.h"
 
 #include "layout.h"
 
@@ -30,16 +30,16 @@ void calc_master_stack(const enum Layout layout,
 
 	// size
 	switch(layout) {
-		case LAYOUT_LEFT:
-		case LAYOUT_RIGHT:
+		case LEFT:
+		case RIGHT:
 			master->width = (usable_width + 1) / 2;
 			master->height = usable_height;
 			stack->width = usable_width - master->width;
 			stack->height = usable_height;
 			break;
 
-		case LAYOUT_TOP:
-		case LAYOUT_BOTTOM:
+		case TOP:
+		case BOTTOM:
 			master->width = usable_width;
 			master->height = (usable_height + 1) / 2;
 			stack->width = usable_width;
@@ -52,18 +52,18 @@ void calc_master_stack(const enum Layout layout,
 
 	// master position
 	switch(layout) {
-		case LAYOUT_LEFT:
-		case LAYOUT_TOP:
+		case LEFT:
+		case TOP:
 			master->x = 0;
 			master->y = 0;
 			break;
 
-		case LAYOUT_RIGHT:
+		case RIGHT:
 			master->x = usable_width - master->width;
 			master->y = 0;
 			break;
 
-		case LAYOUT_BOTTOM:
+		case BOTTOM:
 			master->x = 0;
 			master->y = master->height;
 			break;
@@ -74,18 +74,18 @@ void calc_master_stack(const enum Layout layout,
 
 	// stack position
 	switch(layout) {
-		case LAYOUT_LEFT:
+		case LEFT:
 			stack->x = master->width;
 			stack->y = 0;
 			break;
 
-		case LAYOUT_TOP:
+		case TOP:
 			stack->x = 0;
 			stack->y = master->height;
 			break;
 
-		case LAYOUT_RIGHT:
-		case LAYOUT_BOTTOM:
+		case RIGHT:
+		case BOTTOM:
 			stack->x = 0;
 			stack->y = 0;
 			break;
@@ -216,22 +216,22 @@ void push_views(const enum Layout layout,
 	calc_master_stack(layout, view_count, usable_width, usable_height, &master, &stack);
 
 	switch(layout) {
-		case LAYOUT_LEFT:
-		case LAYOUT_RIGHT:
+		case LEFT:
+		case RIGHT:
 			// top to bottom
 			push_linear(river_layout, 1, master, false, serial);
 			push_linear(river_layout, view_count - 1, stack, false, serial);
 			break;
-		case LAYOUT_TOP:
-		case LAYOUT_BOTTOM:
+		case TOP:
+		case BOTTOM:
 			// left to right
 			push_linear(river_layout, 1, master, true, serial);
 			push_linear(river_layout, view_count - 1, stack, true, serial);
 			break;
-		case LAYOUT_MONOCLE:
+		case MONOCLE:
 			push_monocle(river_layout, view_count, usable_width, usable_height, serial);
 			break;
-		case LAYOUT_MID:
+		case MID:
 			break;
 	}
 }

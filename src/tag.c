@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "config.h"
 #include "list.h"
 
 #include "tag.h"
@@ -8,7 +9,8 @@
 struct Tag *tag_init(const uint32_t mask) {
 	struct Tag *tag = calloc(1, sizeof(struct Tag));
 
-	tag->layout = LAYOUT_DEFAULT;
+	tag->layout_cur = config()->layout;
+	tag->layout_prev = config()->layout;
 	tag->mask = mask;
 
 	return tag;
@@ -19,10 +21,7 @@ struct SList *tags_init(void) {
 
 	// tag for all 32 bits of the uint32_t masks
 	for (int i = 0; i < 32; i++) {
-		struct Tag *tag = calloc(1, sizeof(struct Tag));
-		tag->layout = LAYOUT_DEFAULT;
-		tag->mask = 1LL << i;
-		slist_append(&tags, tag);
+		slist_append(&tags, tag_init(1LL << i));
 	}
 
 	return tags;

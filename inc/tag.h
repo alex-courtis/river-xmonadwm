@@ -3,26 +3,18 @@
 
 #include <stdint.h>
 
-enum Layout {
-	LAYOUT_MONOCLE,
-	LAYOUT_LEFT,
-	LAYOUT_RIGHT,
-	LAYOUT_TOP,
-	LAYOUT_BOTTOM,
-	LAYOUT_MID,
-	LAYOUT_DEFAULT = LAYOUT_LEFT,
-};
-
-enum LayoutStack {
-	LAYOUT_STACK_LINEAR,
-	LAYOUT_STACK_DWINDLE,
-	LAYOUT_STACK_DEFAULT = LAYOUT_STACK_LINEAR,
-};
+#include "config.h"
 
 struct Tag {
 	uint32_t mask;
-	enum Layout layout;
+	enum Layout layout_cur;
+	enum Layout layout_prev;
+	uint32_t count_master;
+	double ratio_master;
+	double ratio_stack;
 };
+
+struct Tag *tag_init(const uint32_t mask);
 
 struct SList *tags_init(void);
 

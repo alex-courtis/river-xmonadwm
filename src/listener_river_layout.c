@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "river-layout-v3-client-protocol.h"
 
+#include "config.h"
 #include "displ.h"
 #include "layout.h"
 #include "log.h"
@@ -25,7 +26,7 @@ static void layout_handle_layout_demand(void *data,
 		return;
 
 	struct Tag *tag = tag_first(output->tags, tags);
-	enum Layout layout = tag ? tag->layout : LAYOUT_DEFAULT;
+	enum Layout layout = tag ? tag->layout_cur : config()->layout;
 
 	push_views(layout, output->river_layout, view_count, usable_width, usable_height, serial);
 

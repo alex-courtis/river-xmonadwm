@@ -3,6 +3,7 @@ cmocka = dependency('cmocka')
 tests = {
 	'tag': {
 		'src': files(
+			'../src/config.c',
 			'../src/list.c',
 			'../src/tag.c',
 			),
@@ -20,12 +21,12 @@ tests = {
 foreach name, params: tests
 	exe = executable(
 		name,
-		'@0@.c'.format(name),
+		'tst-@0@.c'.format(name),
 		params['src'],
 		include_directories: includes,
 		dependencies: cmocka,
 		link_args : params.get('link_args', ''),
 		)
-	test(name, exe, verbose: true)
+	test(name, exe, verbose: false)
 endforeach
 

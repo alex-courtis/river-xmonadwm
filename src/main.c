@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <wayland-client-core.h>
 
+#include "config.h"
 #include "displ.h"
 #include "log.h"
 
@@ -119,7 +120,9 @@ int loop(void) {
 }
 
 int main(int argc, char **argv) {
-	log_info("river-xmonadwm starting");
+	config_parse(argc, argv);
+
+	config_print();
 
 	if (!getenv("WAYLAND_DISPLAY")) {
 		log_error("Environment variable WAYLAND_DISPLAY not set, exiting");
@@ -135,6 +138,8 @@ int main(int argc, char **argv) {
 	int rc = loop();
 
 	displ_destroy();
+
+	config_destroy();
 
 	log_info("river-xmonadwm done");
 

@@ -3,16 +3,6 @@
 
 #include <stdbool.h>
 
-enum LogThreshold {
-	DEBUG = 1,
-	INFO,
-	WARNING,
-	ERROR,
-	LOG_THRESHOLD_DEFAULT = DEBUG,
-};
-
-extern enum LogThreshold threshold;
-
 void log_debug(const char *__restrict __format, ...);
 
 void log_info(const char *__restrict __format, ...);

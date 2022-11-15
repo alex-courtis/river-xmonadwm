@@ -4,14 +4,9 @@
 #include <string.h>
 #include <time.h>
 
-#include "log.h"
+#include "config.h"
 
-struct LogActive {
-	enum LogThreshold threshold;
-};
-struct LogActive active = {
-	.threshold = LOG_THRESHOLD_DEFAULT,
-};
+#include "log.h"
 
 char threshold_char[] = {
 	'?',
@@ -41,7 +36,7 @@ void print_prefix(enum LogThreshold threshold, FILE *__restrict __stream) {
 }
 
 void log_(enum LogThreshold threshold, int eno, const char *__restrict __format, va_list __args) {
-	if (threshold < active.threshold) {
+	if (threshold < config()->log_threshold) {
 		return;
 	}
 

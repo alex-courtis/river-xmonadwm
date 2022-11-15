@@ -1,6 +1,7 @@
-#include <stdarg.h>
-#include <stddef.h>
-#include <setjmp.h>
+#include <setjmp.h>  // IWYU pragma: keep
+#include <stdarg.h>  // IWYU pragma: keep
+#include <stddef.h>  // IWYU pragma: keep
+
 #include <cmocka.h>
 
 #include "tag.h"

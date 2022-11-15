@@ -1,4 +1,5 @@
 src_files = files(
+	'config.c',
 	'displ.c',
 	'layout.c',
 	'list.c',

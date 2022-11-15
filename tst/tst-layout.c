@@ -1,9 +1,12 @@
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <setjmp.h>
+#include <setjmp.h>  // IWYU pragma: keep
+#include <stdarg.h>  // IWYU pragma: keep
+#include <stddef.h>  // IWYU pragma: keep
+#include <stdbool.h>
+#include <stdint.h>
+
 #include <cmocka.h>
+
+#include "config.h"
 
 #include "layout.h"
 
@@ -49,7 +52,7 @@ void push_monocle__many(void **state) {
 void calc_master_stack__zero(void **state) {
 	struct Box master, stack;
 
-	calc_master_stack(LAYOUT_LEFT, 0, 9, 5, &master, &stack);
+	calc_master_stack(LEFT, 0, 9, 5, &master, &stack);
 
 	assert_int_equal(master.x, 0);
 	assert_int_equal(master.y, 0);
@@ -65,7 +68,7 @@ void calc_master_stack__zero(void **state) {
 void calc_master_stack__left_one(void **state) {
 	struct Box master, stack;
 
-	calc_master_stack(LAYOUT_LEFT, 1, 9, 5, &master, &stack);
+	calc_master_stack(LEFT, 1, 9, 5, &master, &stack);
 
 	assert_int_equal(master.x, 0);
 	assert_int_equal(master.y, 0);
@@ -81,7 +84,7 @@ void calc_master_stack__left_one(void **state) {
 void calc_master_stack__left_many(void **state) {
 	struct Box master, stack;
 
-	calc_master_stack(LAYOUT_LEFT, 2, 9, 5, &master, &stack);
+	calc_master_stack(LEFT, 2, 9, 5, &master, &stack);
 
 	assert_int_equal(master.x, 0);
 	assert_int_equal(master.y, 0);
@@ -97,7 +100,7 @@ void calc_master_stack__left_many(void **state) {
 void calc_master_stack__right_one(void **state) {
 	struct Box master, stack;
 
-	calc_master_stack(LAYOUT_RIGHT, 1, 9, 5, &master, &stack);
+	calc_master_stack(RIGHT, 1, 9, 5, &master, &stack);
 
 	assert_int_equal(master.x, 0);
 	assert_int_equal(master.y, 0);
@@ -113,7 +116,7 @@ void calc_master_stack__right_one(void **state) {
 void calc_master_stack__right_many(void **state) {
 	struct Box master, stack;
 
-	calc_master_stack(LAYOUT_RIGHT, 2, 9, 5, &master, &stack);
+	calc_master_stack(RIGHT, 2, 9, 5, &master, &stack);
 
 	assert_int_equal(master.x, 4);
 	assert_int_equal(master.y, 0);
@@ -129,7 +132,7 @@ void calc_master_stack__right_many(void **state) {
 void calc_master_stack__top_one(void **state) {
 	struct Box master, stack;
 
-	calc_master_stack(LAYOUT_TOP, 1, 9, 5, &master, &stack);
+	calc_master_stack(TOP, 1, 9, 5, &master, &stack);
 
 	assert_int_equal(master.x, 0);
 	assert_int_equal(master.y, 0);
@@ -145,7 +148,7 @@ void calc_master_stack__top_one(void **state) {
 void calc_master_stack__top_many(void **state) {
 	struct Box master, stack;
 
-	calc_master_stack(LAYOUT_TOP, 2, 9, 5, &master, &stack);
+	calc_master_stack(TOP, 2, 9, 5, &master, &stack);
 
 	assert_int_equal(master.x, 0);
 	assert_int_equal(master.y, 0);
@@ -161,7 +164,7 @@ void calc_master_stack__top_many(void **state) {
 void calc_master_stack__bottom_one(void **state) {
 	struct Box master, stack;
 
-	calc_master_stack(LAYOUT_BOTTOM, 1, 9, 5, &master, &stack);
+	calc_master_stack(BOTTOM, 1, 9, 5, &master, &stack);
 
 	assert_int_equal(master.x, 0);
 	assert_int_equal(master.y, 0);
@@ -177,7 +180,7 @@ void calc_master_stack__bottom_one(void **state) {
 void calc_master_stack__bottom_many(void **state) {
 	struct Box master, stack;
 
-	calc_master_stack(LAYOUT_BOTTOM, 2, 9, 5, &master, &stack);
+	calc_master_stack(BOTTOM, 2, 9, 5, &master, &stack);
 
 	assert_int_equal(master.x, 0);
 	assert_int_equal(master.y, 3);
