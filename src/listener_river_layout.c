@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include "river-layout-v3-client-protocol.h"
 
-#include "config.h"
 #include "displ.h"
 #include "layout.h"
 #include "log.h"
@@ -25,10 +24,18 @@ static void layout_handle_layout_demand(void *data,
 	if (!output)
 		return;
 
-	struct Tag *tag = tag_first(output->tags, tags);
-	enum Layout layout = tag ? tag->layout_cur : config()->layout;
+	const struct Demand demand = {
+		.river_layout = output->river_layout,
+		.view_count = view_count,
+		.usable_width = usable_width,
+		.usable_height = usable_height,
+		.tags = tags,
+		.serial = serial,
+	};
 
-	push_views(layout, output->river_layout, view_count, usable_width, usable_height, serial);
+	struct Tag *tag = tag_first(output->tags, tags);
+
+	push_views(demand, tag);
 
 	river_layout_v3_commit(output->river_layout, "[]=", serial);
 }

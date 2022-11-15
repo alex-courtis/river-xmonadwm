@@ -4,46 +4,55 @@
 
 #include "config.h"
 #include "river_layout.h"
+#include "tag.h"
 
 #include "layout.h"
 
-void calc_master_stack(const enum Layout layout,
-		const uint32_t view_count,
-		const uint32_t usable_width,
-		const uint32_t usable_height,
-		struct Box *master,
-		struct Box *stack) {
+struct Box {
+	uint32_t x;
+	uint32_t y;
+	uint32_t width;
+	uint32_t height;
+};
+
+enum Ordinal {
+	NE,
+	SE,
+	SW,
+	NW,
+};
+
+void calc_master_stack(const struct Demand demand, const struct Tag *tag, struct Box *master, struct Box *stack) {
 
 	memset(master, 0, sizeof(*master));
 	memset(stack, 0, sizeof(*master));
 
-	switch (view_count) {
-		case 0:
-			return;
-		case 1:
-			master->width = usable_width;
-			master->height = usable_height;
-			return;
-		default:
-			break;
+	if (demand.view_count == 0) {
+		return;
+	}
+
+	if (tag->count_master >= demand.view_count) {
+		master->width = demand.usable_width;
+		master->height = demand.usable_height;
+		return;
 	}
 
 	// size
-	switch(layout) {
+	switch(tag->layout_cur) {
 		case LEFT:
 		case RIGHT:
-			master->width = (usable_width + 1) / 2;
-			master->height = usable_height;
-			stack->width = usable_width - master->width;
-			stack->height = usable_height;
+			master->width = (demand.usable_width + 1) / 2;
+			master->height = demand.usable_height;
+			stack->width = demand.usable_width - master->width;
+			stack->height = demand.usable_height;
 			break;
 
 		case TOP:
 		case BOTTOM:
-			master->width = usable_width;
-			master->height = (usable_height + 1) / 2;
-			stack->width = usable_width;
-			stack->height = usable_height - master->height;
+			master->width = demand.usable_width;
+			master->height = (demand.usable_height + 1) / 2;
+			stack->width = demand.usable_width;
+			stack->height = demand.usable_height - master->height;
 			break;
 
 		default:
@@ -51,7 +60,7 @@ void calc_master_stack(const enum Layout layout,
 	}
 
 	// master position
-	switch(layout) {
+	switch(tag->layout_cur) {
 		case LEFT:
 		case TOP:
 			master->x = 0;
@@ -59,7 +68,7 @@ void calc_master_stack(const enum Layout layout,
 			break;
 
 		case RIGHT:
-			master->x = usable_width - master->width;
+			master->x = demand.usable_width - master->width;
 			master->y = 0;
 			break;
 
@@ -73,7 +82,7 @@ void calc_master_stack(const enum Layout layout,
 	}
 
 	// stack position
-	switch(layout) {
+	switch(tag->layout_cur) {
 		case LEFT:
 			stack->x = master->width;
 			stack->y = 0;
@@ -95,21 +104,13 @@ void calc_master_stack(const enum Layout layout,
 	}
 }
 
-void push_monocle(struct river_layout_v3 *river_layout,
-		const uint32_t view_count,
-		const uint32_t usable_width,
-		const uint32_t usable_height,
-		const uint32_t serial) {
-	for (uint32_t i = 0; i < view_count; i++) {
-		_river_layout_v3_push_view_dimensions(river_layout, 0, 0, usable_width, usable_height, serial);
+void push_monocle(const struct Demand demand) {
+	for (uint32_t i = 0; i < demand.view_count; i++) {
+		_river_layout_v3_push_view_dimensions(demand.river_layout, 0, 0, demand.usable_width, demand.usable_height, demand.serial);
 	}
 }
 
-void push_linear(struct river_layout_v3 *river_layout,
-		const uint32_t stack_count,
-		const struct Box usable,
-		const bool left_to_right,
-		const uint32_t serial) {
+void push_linear(const struct Demand demand, const uint32_t stack_count, const struct Box usable, const bool left_to_right) {
 
 	if (stack_count == 0)
 		return;
@@ -132,7 +133,7 @@ void push_linear(struct river_layout_v3 *river_layout,
 			height = usable.height + usable.y - y;
 		}
 
-		_river_layout_v3_push_view_dimensions(river_layout, x, y, width, height, serial);
+		_river_layout_v3_push_view_dimensions(demand.river_layout, x, y, width, height, demand.serial);
 
 		if (left_to_right) {
 			x += width;
@@ -148,20 +149,15 @@ void push_linear(struct river_layout_v3 *river_layout,
 		height = usable.height + usable.y - y;
 	}
 
-	_river_layout_v3_push_view_dimensions(river_layout, x, y, width, height, serial);
+	_river_layout_v3_push_view_dimensions(demand.river_layout, x, y, width, height, demand.serial);
 }
 
-void push_dwindle(struct river_layout_v3 *river_layout,
-		const uint32_t stack_count,
-		const struct Box usable,
-		const enum Ordinal ordinal,
-		const bool vertical,
-		const uint32_t serial) {
+void push_dwindle(const struct Demand demand, const uint32_t stack_count, const struct Box usable, const enum Ordinal ordinal, const bool vertical) {
 
 	if (stack_count == 0) {
 		return;
 	} else if (stack_count == 1) {
-		_river_layout_v3_push_view_dimensions(river_layout, usable.x, usable.y, usable.width, usable.height, serial);
+		_river_layout_v3_push_view_dimensions(demand.river_layout, usable.x, usable.y, usable.width, usable.height, demand.serial);
 		return;
 	}
 
@@ -198,38 +194,33 @@ void push_dwindle(struct river_layout_v3 *river_layout,
 		}
 	}
 
-	_river_layout_v3_push_view_dimensions(river_layout, this.x, this.y, this.width, this.height, serial);
+	_river_layout_v3_push_view_dimensions(demand.river_layout, this.x, this.y, this.width, this.height, demand.serial);
 
-	push_dwindle(river_layout, stack_count - 1, remaining, ordinal, !vertical, serial);
+	push_dwindle(demand, stack_count - 1, remaining, ordinal, !vertical);
 }
 
-void push_views(const enum Layout layout,
-		struct river_layout_v3 *river_layout,
-		const uint32_t view_count,
-		const uint32_t usable_width,
-		const uint32_t usable_height,
-		const uint32_t serial) {
+void push_views(const struct Demand demand, const struct Tag *tag) {
 
 	struct Box master = { 0 };
 	struct Box stack = { 0 };
 
-	calc_master_stack(layout, view_count, usable_width, usable_height, &master, &stack);
+	calc_master_stack(demand, tag, &master, &stack);
 
-	switch(layout) {
+	switch(tag->layout_cur) {
 		case LEFT:
 		case RIGHT:
 			// top to bottom
-			push_linear(river_layout, 1, master, false, serial);
-			push_linear(river_layout, view_count - 1, stack, false, serial);
+			push_linear(demand, 1, master, false);
+			push_linear(demand, demand.view_count - 1, stack, false);
 			break;
 		case TOP:
 		case BOTTOM:
 			// left to right
-			push_linear(river_layout, 1, master, true, serial);
-			push_linear(river_layout, view_count - 1, stack, true, serial);
+			push_linear(demand, 1, master, true);
+			push_linear(demand, demand.view_count - 1, stack, true);
 			break;
 		case MONOCLE:
-			push_monocle(river_layout, view_count, usable_width, usable_height, serial);
+			push_monocle(demand);
 			break;
 		case MID:
 			break;
