@@ -9,12 +9,10 @@ struct Tag {
 	uint32_t mask;
 	enum Layout layout_cur;
 	enum Layout layout_prev;
+	enum Stack stack;
 	uint32_t count_master;
 	double ratio_master;
-	double ratio_stack;
 };
-
-struct Tag *tag_init(const uint32_t mask);
 
 struct SList *tags_init(void);
 

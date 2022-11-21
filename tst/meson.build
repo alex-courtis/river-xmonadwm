@@ -8,7 +8,7 @@ tests = {
 			'../src/tag.c',
 			),
 		},
-	'layout': {
+	'layout-calc-master-stack': {
 		'src': files(
 			'../src/config.c',
 			'../src/layout.c',
@@ -19,7 +19,7 @@ tests = {
 			'-Wl,--wrap=_river_layout_v3_push_view_dimensions',
 			]
 		},
-	'layout-calc-master-stack': {
+	'layout-push-stack': {
 		'src': files(
 			'../src/config.c',
 			'../src/layout.c',
@@ -42,6 +42,6 @@ foreach name, params: tests
 		c_args : '-Wno-unused-function',
 		link_args : params.get('link_args', ''),
 		)
-	test(name, exe, verbose: false)
+	test(name, exe, verbose: true)
 endforeach
 

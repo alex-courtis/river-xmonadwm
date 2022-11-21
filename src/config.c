@@ -10,16 +10,14 @@ struct Config *cfg;
 
 #define LAYOUT_DEFAULT LEFT
 
+#define STACK_DEFAULT EVEN
+
 #define COUNT_MASTER_MIN 1
 #define COUNT_MASTER_DEFAULT 1
 
 #define RATIO_MASTER_MIN 0.1
 #define RATIO_MASTER_DEFAULT 0.5
 #define RATIO_MASTER_MAX 0.9
-
-#define RATIO_SPLIT_MIN 0.1
-#define RATIO_SPLIT_DEFAULT 0.5
-#define RATIO_SPLIT_MAX 0.9
 
 #define LOG_THRESHOLD_DEFAULT INFO
 
@@ -29,21 +27,28 @@ struct NameVal {
 };
 
 static struct NameVal layouts[] = {
-	{ .val = MONOCLE, .name = "monocle", },
-	{ .val = LEFT,    .name = "left",    },
-	{ .val = RIGHT,   .name = "right",   },
-	{ .val = TOP,     .name = "top",     },
-	{ .val = BOTTOM,  .name = "bottom",  },
-	{ .val = MID,     .name = "mid",     },
-	{ .val = 0,       .name = NULL,      },
+	{ .val = MONOCLE,	.name = "monocle",	},
+	{ .val = LEFT,		.name = "left",		},
+	{ .val = RIGHT,		.name = "right",	},
+	{ .val = TOP,		.name = "top",		},
+	{ .val = BOTTOM,	.name = "bottom",	},
+	{ .val = MID,		.name = "mid",		},
+	{ .val = 0,			.name = NULL,		},
+};
+
+static struct NameVal stacks[] = {
+	{ .val = EVEN,		.name = "even",		},
+	{ .val = DIMINISH,	.name = "diminish",	},
+	{ .val = DWINDLE,	.name = "dwindle",	},
+	{ .val = 0,			.name = NULL,		},
 };
 
 static struct NameVal log_thresholds[] = {
-	{ .val = DEBUG,   .name = "debug",   },
-	{ .val = INFO,    .name = "info",    },
-	{ .val = WARNING, .name = "warning", },
-	{ .val = ERROR,   .name = "error",   },
-	{ .val = 0,       .name = NULL,      },
+	{ .val = DEBUG,		.name = "debug",	},
+	{ .val = INFO,		.name = "info",		},
+	{ .val = WARNING,	.name = "warning",	},
+	{ .val = ERROR,		.name = "error",	},
+	{ .val = 0,			.name = NULL,		},
 };
 
 const char *name(struct NameVal *name_vals, unsigned int val) {
@@ -78,6 +83,14 @@ enum Layout layout_val(const char *name) {
 	return val(layouts, name);
 }
 
+const char *stack_name(enum Stack stack) {
+	return name(stacks, stack);
+}
+
+enum Stack stack_val(const char *name) {
+	return val(stacks, name);
+}
+
 const char *log_threshold_name(enum LogThreshold log_threshold) {
 	return name(log_thresholds, log_threshold);
 }
@@ -91,6 +104,7 @@ void config_init_default(void) {
 	cfg = calloc(1, sizeof(struct Config));
 
 	cfg->layout = LAYOUT_DEFAULT;
+	cfg->stack = STACK_DEFAULT;
 	cfg->count_master = COUNT_MASTER_DEFAULT;
 	cfg->ratio_master = RATIO_MASTER_DEFAULT;
 	cfg->log_threshold = LOG_THRESHOLD_DEFAULT;
@@ -111,18 +125,18 @@ void usage(FILE *stream) {
 	fprintf(stream,
 			"Usage: river-xmonadwm [OPTIONS...]\n"
 			"\n"
-			"  -l, --la[yout]        <%s|%s|%s|%s|%s|%s>                     default %s\n"
-			"  -c, --c[out-master]   <int>                                master view count  default %d       1 <= count\n"
-			"  -r, --ratio-m[aster]  <float>                              master area ratio  default %.1g   %.1g <= ratio <= %.1g\n"
-			"  -R, --ratio-s[plit]   <float>                              view split ratio   default %.1g   %.1g <= ratio <= %.1g\n"
+			"  -l, --la[yout]        <%s|%s|%s|%s|%s|%s>  %s\n"
+			"  -c, --c[ount-master]  <int>                                %d       1 <= count\n"
+			"  -r, --ratio-m[aster]  <float>                              %.1g   %.1g <= ratio <= %.1g\n"
+			"  -s, --stack           <%s|%s|%s>              %s\n"
 			"\n"
 			"  -h, --h[elp]\n"
-			"  -L, --lo[g-threshold] <%s|%s|%s|%s>                              default %s\n"
+			"  -L, --lo[g-threshold] <%s|%s|%s|%s>           %s\n"
 			"  -v, --v[ersion]\n",
 			layout_name(MONOCLE), layout_name(LEFT), layout_name(RIGHT), layout_name(TOP), layout_name(BOTTOM), layout_name(MID), layout_name(LAYOUT_DEFAULT),
 			COUNT_MASTER_DEFAULT,
-			RATIO_SPLIT_DEFAULT, RATIO_SPLIT_MIN, RATIO_SPLIT_MAX,
 			RATIO_MASTER_DEFAULT, RATIO_MASTER_MIN, RATIO_MASTER_MAX,
+			stack_name(EVEN), stack_name(DIMINISH), stack_name(DWINDLE), stack_name(STACK_DEFAULT),
 			log_threshold_name(DEBUG), log_threshold_name(INFO), log_threshold_name(WARNING), log_threshold_name(ERROR), log_threshold_name(LOG_THRESHOLD_DEFAULT)
 		   );
 }
@@ -134,13 +148,13 @@ void config_parse(int argc, char **argv) {
 		{ "layout",        required_argument, 0, 'l' },
 		{ "count-master",  required_argument, 0, 'c' },
 		{ "ratio-master",  required_argument, 0, 'r' },
-		{ "ratio-split",   required_argument, 0, 'R' },
+		{ "stack",         required_argument, 0, 's' },
 		{ "help",          no_argument,       0, 'h' },
 		{ "log-threshold", required_argument, 0, 'L' },
 		{ "version",       no_argument,       0, 'v' },
 		{ 0,               0,                 0,  0  }
 	};
-	static char *short_options = "l:c:r:R:hL:v";
+	static char *short_options = "l:c:r:s:hL:v";
 
 	int c;
 	long int l;
@@ -175,10 +189,10 @@ void config_parse(int argc, char **argv) {
 					exit(EXIT_FAILURE);
 				}
 				break;
-			case 'R':
-				cfg->ratio_split = strtod(optarg, NULL);
-				if (cfg->ratio_split < RATIO_SPLIT_MIN || cfg->ratio_split > RATIO_SPLIT_MAX) {
-					fprintf(stderr, "invalid --ratio-split %s\n\n", optarg);
+			case 's':
+				cfg->stack = stack_val(optarg);
+				if (!cfg->stack) {
+					fprintf(stderr, "invalid --stack %s\n\n", optarg);
 					usage(stderr);
 					exit(EXIT_FAILURE);
 				}
@@ -210,9 +224,9 @@ void config_print(void) {
 	config();
 
 	fprintf(stdout, "layout         %s\n", layout_name(cfg->layout));
-	fprintf(stdout, "ratio master   %g\n", cfg->ratio_master);
-	fprintf(stdout, "ratio split    %g\n", cfg->ratio_split);
-	fprintf(stdout, "master count   %d\n", cfg->count_master);
-	fprintf(stdout, "log threshold  %s\n", log_threshold_name(cfg->log_threshold));
+	fprintf(stdout, "count-master   %d\n", cfg->count_master);
+	fprintf(stdout, "ratio-master   %g\n", cfg->ratio_master);
+	fprintf(stdout, "stack          %s\n", stack_name(cfg->stack));
+	fprintf(stdout, "log-threshold  %s\n", log_threshold_name(cfg->log_threshold));
 }
 

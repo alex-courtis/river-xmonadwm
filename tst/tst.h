@@ -12,35 +12,7 @@
 struct river_layout_v3;
 
 //
-// private types
-//
-struct Box {
-	uint32_t x;
-	uint32_t y;
-	uint32_t width;
-	uint32_t height;
-};
-
-enum Ordinal {
-	NE,
-	SE,
-	SW,
-	NW,
-};
-
-//
-// private prototypes
-//
-void calc_master_stack(const struct Demand demand, const struct Tag tag, struct Box *master, struct Box *stack);
-
-void push_monocle(const struct Demand demand);
-
-void push_linear(const struct Demand demand, const struct Tag tag, const uint32_t stack_count, const struct Box usable, const bool left_to_right);
-
-void push_dwindle(const struct Demand demand, const struct Tag tag, const uint32_t stack_count, const struct Box usable, const enum Ordinal ordinal, const bool vertical);
-
-//
-// wrappers
+// convenience wrappers
 //
 void __wrap__river_layout_v3_push_view_dimensions(struct river_layout_v3 *river_layout_v3, int32_t x, int32_t y, uint32_t width, uint32_t height, uint32_t serial) {
 	check_expected(x);

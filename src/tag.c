@@ -12,9 +12,11 @@ struct Tag *tag_init(const uint32_t mask) {
 	tag->layout_cur = config()->layout;
 	tag->layout_prev = config()->layout;
 
+	tag->stack = config()->stack;
+
 	tag->count_master = config()->count_master;
 	tag->ratio_master = config()->ratio_master;
-	tag->ratio_stack = config()->ratio_split;
+
 	tag->mask = mask;
 
 	return tag;

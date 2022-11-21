@@ -9,20 +9,6 @@
 
 #include "layout.h"
 
-struct Box {
-	uint32_t x;
-	uint32_t y;
-	uint32_t width;
-	uint32_t height;
-};
-
-enum Ordinal {
-	NE,
-	SE,
-	SW,
-	NW,
-};
-
 void calc_master_stack(const struct Demand demand, const struct Tag tag, struct Box *master, struct Box *stack) {
 
 	memset(master, 0, sizeof(*master));
@@ -36,11 +22,6 @@ void calc_master_stack(const struct Demand demand, const struct Tag tag, struct 
 		master->width = demand.usable_width;
 		master->height = demand.usable_height;
 		return;
-	}
-
-	double ratio = tag.ratio_master;
-	if (ratio < RATIO_MASTER_MIN || ratio > RATIO_MASTER_MAX) {
-		ratio = RATIO_MASTER_DEFAULT;
 	}
 
 	// size
@@ -116,100 +97,80 @@ void push_monocle(const struct Demand demand) {
 	}
 }
 
-// TODO remove
-void push_linear(const struct Demand demand, const struct Tag tag, const uint32_t stack_count, const struct Box usable, const bool left_to_right) {
-
-	if (stack_count == 0)
+void push_stack(const struct Demand demand,
+		const enum Stack mode,
+		const enum Cardinal dir_cur,
+		const enum Cardinal dir_next,
+		const uint32_t num_total,
+		const uint32_t num_remaining,
+		const struct Box box_total,
+		const struct Box box_stack) {
+	if (num_total == 0 || num_remaining == 0)
 		return;
 
-	uint32_t x = usable.x;
-	uint32_t y = usable.y;
-	uint32_t width;
-	uint32_t height;
-
-	if (left_to_right) {
-		width = (usable.width + 1) / stack_count;
-		height = usable.height;
-	} else {
-		width = usable.width;
-		height = (usable.height + 1) / stack_count;
-	}
-
-	for (uint32_t i = 0; i < stack_count - 1; i++) {
-		if (i == stack_count - 1) {
-			height = usable.height + usable.y - y;
-		}
-
-		_river_layout_v3_push_view_dimensions(demand.river_layout, x, y, width, height, demand.serial);
-
-		if (left_to_right) {
-			x += width;
-		} else {
-			y += height;
-		}
-	}
-
-	// bottom of stack takes remaining room to deal with rounding
-	if (left_to_right) {
-		width = usable.width + usable.x - x;
-	} else {
-		height = usable.height + usable.y - y;
-	}
-
-	_river_layout_v3_push_view_dimensions(demand.river_layout, x, y, width, height, demand.serial);
-}
-
-// TODO push_split, use stack ratio, master set different ordinal
-void push_dwindle(const struct Demand demand, const struct Tag tag, const uint32_t stack_count, const struct Box usable, const enum Ordinal ordinal, const bool vertical) {
-
-	if (stack_count == 0) {
-		return;
-	} else if (stack_count == 1) {
-		_river_layout_v3_push_view_dimensions(demand.river_layout, usable.x, usable.y, usable.width, usable.height, demand.serial);
+	if (num_remaining == 1) {
+		_river_layout_v3_push_view_dimensions(demand.river_layout, box_stack.x, box_stack.y, box_stack.width, box_stack.height, demand.serial);
 		return;
 	}
 
-	struct Box this = usable;
-	struct Box remaining = usable;
-
-	double ratio = tag.ratio_stack;
-	if (ratio < RATIO_SPLIT_MIN || ratio > RATIO_SPLIT_MAX) {
-		ratio = RATIO_SPLIT_DEFAULT;
+	// size
+	uint32_t width, height, denom = 0;
+	switch (mode) {
+		case EVEN:
+			width = (double)(box_total.width) / num_total + 0.5;
+			height = (double)(box_total.height) / num_total + 0.5;
+			break;
+		case DIMINISH:
+			for (uint32_t i = num_total; i > 0; i--)
+				denom += i;
+			width = (double)(num_remaining) * box_total.width / denom + 0.5;
+			height = (double)(num_remaining) * box_total.height / denom + 0.5;
+			break;
+		case DWINDLE:
+			width = (double)(box_stack.width) / 2 + 0.5;
+			height = (double)(box_stack.height) / 2 + 0.5;
+			break;
 	}
 
-	if (vertical) {
-		this.height = (usable.height + 1) * ratio;
-		switch (ordinal) {
-			case NE:
-			case NW:
-				this.y += usable.height - this.height;
-				remaining.height -= this.height;
-				break;
-			case SE:
-			case SW:
-				remaining.y += this.height;
-				remaining.height -= this.height;
-				break;
-		}
-	} else {
-		this.width = (usable.width + 1) * ratio;
-		switch (ordinal) {
-			case SW:
-			case NW:
-				this.x += usable.width - this.width;
-				remaining.width -= this.width;
-				break;
-			case NE:
-			case SE:
-				remaining.x += this.width;
-				remaining.width -= this.width;
-				break;
-		}
+	// dimension
+	struct Box this = box_stack;
+	struct Box remaining = box_stack;
+	switch (dir_cur) {
+		case N:
+		case S:
+			this.height = height;
+			remaining.height -= this.height;
+			break;
+		case E:
+		case W:
+			this.width = width;
+			remaining.width -= this.width;
+			break;
+	}
+
+	// position
+	switch (dir_cur) {
+		case N:
+			this.y += box_stack.height - this.height;
+			break;
+		case S:
+			remaining.y += this.height;
+			break;
+		case E:
+			remaining.x += this.width;
+			break;
+		case W:
+			this.x += box_stack.width - this.width;
+			break;
 	}
 
 	_river_layout_v3_push_view_dimensions(demand.river_layout, this.x, this.y, this.width, this.height, demand.serial);
 
-	push_dwindle(demand, tag, stack_count - 1, remaining, ordinal, !vertical);
+	if (mode == DWINDLE) {
+		push_stack(demand, mode, dir_next, dir_cur, num_total, num_remaining - 1, box_total, remaining);
+	} else {
+		push_stack(demand, mode, dir_cur, dir_next, num_total, num_remaining - 1, box_total, remaining);
+	}
 }
 
 void push_views(const struct Demand demand, const struct Tag tag) {
@@ -223,14 +184,14 @@ void push_views(const struct Demand demand, const struct Tag tag) {
 		case LEFT:
 		case RIGHT:
 			// top to bottom
-			push_linear(demand, tag, tag.count_master, master, false);
-			push_linear(demand, tag, demand.view_count - tag.count_master, stack, false);
+			push_stack(demand, tag.stack, S, S, tag.count_master, tag.count_master, master, master);
+			push_stack(demand, tag.stack, S, S, demand.view_count, demand.view_count, stack, stack);
 			break;
 		case TOP:
 		case BOTTOM:
 			// left to right
-			push_linear(demand, tag, tag.count_master, master, true);
-			push_linear(demand, tag, demand.view_count - tag.count_master, stack, true);
+			push_stack(demand, tag.stack, E, E, tag.count_master, tag.count_master, master, master);
+			push_stack(demand, tag.stack, E, E, demand.view_count, demand.view_count, stack, stack);
 			break;
 		case MONOCLE:
 			push_monocle(demand);

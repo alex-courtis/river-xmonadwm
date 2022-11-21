@@ -9,7 +9,7 @@ clean:
 	ninja -C build clean
 
 test:
-	ninja -C build test --verbose
+	ninja -C build test
 
 copy: build
 	ssh duke -C pkill -9 -f river-xmonadwm || true
