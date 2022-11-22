@@ -8,18 +8,12 @@
 
 struct Config *cfg;
 
-#define LAYOUT_DEFAULT LEFT
-
-#define STACK_DEFAULT EVEN
-
 #define COUNT_MASTER_MIN 1
 #define COUNT_MASTER_DEFAULT 1
 
 #define RATIO_MASTER_MIN 0.1
 #define RATIO_MASTER_DEFAULT 0.5
 #define RATIO_MASTER_MAX 0.9
-
-#define LOG_THRESHOLD_DEFAULT INFO
 
 struct NameVal {
 	unsigned int val;
@@ -103,11 +97,8 @@ void config_init_default(void) {
 	free(cfg);
 	cfg = calloc(1, sizeof(struct Config));
 
-	cfg->layout = LAYOUT_DEFAULT;
-	cfg->stack = STACK_DEFAULT;
 	cfg->count_master = COUNT_MASTER_DEFAULT;
 	cfg->ratio_master = RATIO_MASTER_DEFAULT;
-	cfg->log_threshold = LOG_THRESHOLD_DEFAULT;
 }
 
 struct Config *config(void) {
@@ -133,11 +124,11 @@ void usage(FILE *stream) {
 			"  -h, --h[elp]\n"
 			"  -L, --lo[g-threshold] <%s|%s|%s|%s>           %s\n"
 			"  -v, --v[ersion]\n",
-			layout_name(MONOCLE), layout_name(LEFT), layout_name(RIGHT), layout_name(TOP), layout_name(BOTTOM), layout_name(MID), layout_name(LAYOUT_DEFAULT),
+			layout_name(MONOCLE), layout_name(LEFT), layout_name(RIGHT), layout_name(TOP), layout_name(BOTTOM), layout_name(MID), layout_name(0),
 			COUNT_MASTER_DEFAULT,
 			RATIO_MASTER_DEFAULT, RATIO_MASTER_MIN, RATIO_MASTER_MAX,
-			stack_name(EVEN), stack_name(DIMINISH), stack_name(DWINDLE), stack_name(STACK_DEFAULT),
-			log_threshold_name(DEBUG), log_threshold_name(INFO), log_threshold_name(WARNING), log_threshold_name(ERROR), log_threshold_name(LOG_THRESHOLD_DEFAULT)
+			stack_name(EVEN), stack_name(DIMINISH), stack_name(DWINDLE), stack_name(0),
+			log_threshold_name(DEBUG), log_threshold_name(INFO), log_threshold_name(WARNING), log_threshold_name(ERROR), log_threshold_name(0)
 		   );
 }
 

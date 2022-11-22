@@ -18,24 +18,24 @@ int teardown(void **state) {
 	return 0;
 }
 
-void layout_area__one(void **state) {
+void layout_views__one(void **state) {
 	struct SList *stack = NULL;
 	struct Demand demand = { 0 };
 	struct Box usable = { 1, 2, 5, 11, };
 
-	layout_view(demand, EVEN, N, N, 1, 1, usable, usable, &stack);
+	layout_views(demand, EVEN, N, N, 1, 1, usable, usable, &stack);
 
 	assert_int_equal(slist_length(stack), 1);
 
 	assert_boxes_equal(stack->val, &usable);
 }
 
-void layout_area__n(void **state) {
+void layout_views__n(void **state) {
 	struct SList *stack = NULL;
 	struct Demand demand = { 0 };
 	struct Box usable = { 1, 2, 5, 11, };
 
-	layout_view(demand, EVEN, N, N, 2, 2, usable, usable, &stack);
+	layout_views(demand, EVEN, N, N, 2, 2, usable, usable, &stack);
 
 	assert_int_equal(slist_length(stack), 2);
 
@@ -43,12 +43,12 @@ void layout_area__n(void **state) {
 	assert_box_equal(slist_val(stack, 1), 1, 2, 5, 5);
 }
 
-void layout_area__s(void **state) {
+void layout_views__s(void **state) {
 	struct SList *stack = NULL;
 	struct Demand demand = { 0 };
 	struct Box usable = { 1, 2, 5, 11, };
 
-	layout_view(demand, EVEN, S, S, 2, 2, usable, usable, &stack);
+	layout_views(demand, EVEN, S, S, 2, 2, usable, usable, &stack);
 
 	assert_int_equal(slist_length(stack), 2);
 
@@ -56,12 +56,12 @@ void layout_area__s(void **state) {
 	assert_box_equal(slist_val(stack, 1), 1, 8, 5, 5);
 }
 
-void layout_area__e(void **state) {
+void layout_views__e(void **state) {
 	struct SList *stack = NULL;
 	struct Demand demand = { 0 };
 	struct Box usable = { 1, 2, 5, 11, };
 
-	layout_view(demand, EVEN, E, E, 2, 2, usable, usable, &stack);
+	layout_views(demand, EVEN, E, E, 2, 2, usable, usable, &stack);
 
 	assert_int_equal(slist_length(stack), 2);
 
@@ -69,12 +69,12 @@ void layout_area__e(void **state) {
 	assert_box_equal(slist_val(stack, 1), 4, 2, 2, 11);
 }
 
-void layout_area__w(void **state) {
+void layout_views__w(void **state) {
 	struct SList *stack = NULL;
 	struct Demand demand = { 0 };
 	struct Box usable = { 1, 2, 5, 11, };
 
-	layout_view(demand, EVEN, W, W, 2, 2, usable, usable, &stack);
+	layout_views(demand, EVEN, W, W, 2, 2, usable, usable, &stack);
 
 	assert_int_equal(slist_length(stack), 2);
 
@@ -82,12 +82,12 @@ void layout_area__w(void **state) {
 	assert_box_equal(slist_val(stack, 1), 1, 2, 2, 11);
 }
 
-void layout_area__even(void **state) {
+void layout_views__even(void **state) {
 	struct SList *stack = NULL;
 	struct Demand demand = { 0 };
 	struct Box usable = { 1, 2, 5, 11, };
 
-	layout_view(demand, EVEN, S, S, 3, 3, usable, usable, &stack);
+	layout_views(demand, EVEN, S, S, 3, 3, usable, usable, &stack);
 
 	assert_int_equal(slist_length(stack), 3);
 
@@ -96,12 +96,12 @@ void layout_area__even(void **state) {
 	assert_box_equal(slist_val(stack, 2), 1, 10, 5, 3);
 }
 
-void layout_area__diminish(void **state) {
+void layout_views__diminish(void **state) {
 	struct SList *stack = NULL;
 	struct Demand demand = { 0 };
 	struct Box usable = { 0, 0, 97, 1, };
 
-	layout_view(demand, DIMINISH, E, E, 7, 7, usable, usable, &stack);
+	layout_views(demand, DIMINISH, E, E, 7, 7, usable, usable, &stack);
 
 	assert_int_equal(slist_length(stack), 7);
 
@@ -114,12 +114,12 @@ void layout_area__diminish(void **state) {
 	assert_box_equal(slist_val(stack, 6), 93, 0,  4, 1); // 1/28
 }
 
-void layout_area__dwindle(void **state) {
+void layout_views__dwindle(void **state) {
 	struct SList *stack = NULL;
 	struct Demand demand = { 0 };
 	struct Box usable = { 100, 100, 37, 71, };
 
-	layout_view(demand, DWINDLE, S, E, 8, 8, usable, usable, &stack);
+	layout_views(demand, DWINDLE, S, E, 8, 8, usable, usable, &stack);
 
 	assert_int_equal(slist_length(stack), 8);
 
@@ -135,18 +135,18 @@ void layout_area__dwindle(void **state) {
 
 int main(void) {
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(layout_area__one),
+		cmocka_unit_test(layout_views__one),
 
-		cmocka_unit_test(layout_area__n),
-		cmocka_unit_test(layout_area__s),
-		cmocka_unit_test(layout_area__e),
-		cmocka_unit_test(layout_area__w),
+		cmocka_unit_test(layout_views__n),
+		cmocka_unit_test(layout_views__s),
+		cmocka_unit_test(layout_views__e),
+		cmocka_unit_test(layout_views__w),
 
-		cmocka_unit_test(layout_area__even),
+		cmocka_unit_test(layout_views__even),
 
-		cmocka_unit_test(layout_area__diminish),
+		cmocka_unit_test(layout_views__diminish),
 
-		cmocka_unit_test(layout_area__dwindle),
+		cmocka_unit_test(layout_views__dwindle),
 	};
 
 	return cmocka_run_group_tests(tests, setup, teardown);

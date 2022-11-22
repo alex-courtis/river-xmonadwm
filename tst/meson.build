@@ -14,13 +14,13 @@ tests = {
 			'../src/list.c',
 			),
 		},
-	'layout-calc-master-stack': {
+	'layout-master-stack': {
 		'src': files(
 			'../src/layout.c',
 			'../src/list.c',
 			),
 		},
-	'layout-area': {
+	'layout-views': {
 		'src': files(
 			'../src/layout.c',
 			'../src/list.c',

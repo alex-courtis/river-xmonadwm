@@ -8,7 +8,7 @@
 
 #include "layout.h"
 
-void calc_master_stack(const struct Demand demand,
+void layout_master_stack(const struct Demand demand,
 		const struct Tag tag,
 		struct Box *master,
 		struct Box *stack) {
@@ -106,7 +106,7 @@ void layout_monocle(const struct Demand demand,
 	}
 }
 
-void layout_view(const struct Demand demand,
+void layout_views(const struct Demand demand,
 		const enum Stack stack,
 		const enum Cardinal dir_cur,
 		const enum Cardinal dir_next,
@@ -178,7 +178,7 @@ void layout_view(const struct Demand demand,
 
 	slist_append(views, this);
 
-	layout_view(demand, stack,
+	layout_views(demand, stack,
 			stack == DWINDLE ? dir_next : dir_cur,
 			stack == DWINDLE ? dir_cur : dir_next,
 			num_total, num_remaining - 1,
@@ -192,20 +192,20 @@ void push_views(const struct Demand demand, const struct Tag tag) {
 	struct Box box_stack = { 0 };
 	struct SList *stack = NULL;
 
-	calc_master_stack(demand, tag, &box_master, &box_stack);
+	layout_master_stack(demand, tag, &box_master, &box_stack);
 
 	switch(tag.layout_cur) {
 		case LEFT:
 		case RIGHT:
 			// top to bottom
-			layout_view(demand, EVEN, S, S, tag.count_master, tag.count_master, box_master, box_master, &stack);
-			layout_view(demand, tag.stack, S, S, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
+			layout_views(demand, EVEN, S, S, tag.count_master, tag.count_master, box_master, box_master, &stack);
+			layout_views(demand, tag.stack, S, S, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
 			break;
 		case TOP:
 		case BOTTOM:
 			// left to right
-			layout_view(demand, EVEN, E, E, tag.count_master, tag.count_master, box_master, box_master, &stack);
-			layout_view(demand, tag.stack, E, E, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
+			layout_views(demand, EVEN, E, E, tag.count_master, tag.count_master, box_master, box_master, &stack);
+			layout_views(demand, tag.stack, E, E, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
 			break;
 		case MONOCLE:
 			layout_monocle(demand, &stack);
@@ -213,8 +213,8 @@ void push_views(const struct Demand demand, const struct Tag tag) {
 		case MID:
 			// top to bottom
 			// TODO left stack
-			layout_view(demand, EVEN, S, S, tag.count_master, tag.count_master, box_master, box_master, &stack);
-			layout_view(demand, tag.stack, S, S, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
+			layout_views(demand, EVEN, S, S, tag.count_master, tag.count_master, box_master, box_master, &stack);
+			layout_views(demand, tag.stack, S, S, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
 			break;
 	}
 }

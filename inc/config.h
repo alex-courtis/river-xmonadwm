@@ -4,23 +4,23 @@
 #include <stdint.h>
 
 enum Layout {
-	MONOCLE = 1,
-	LEFT,
+	LEFT = 0,
 	RIGHT,
 	TOP,
 	BOTTOM,
+	MONOCLE,
 	MID,
 };
 
 enum Stack {
-	EVEN = 1,
+	EVEN = 0,
 	DIMINISH,
 	DWINDLE,
 };
 
 enum LogThreshold {
-	DEBUG = 1,
-	INFO,
+	INFO = 0,
+	DEBUG,
 	WARNING,
 	ERROR,
 };

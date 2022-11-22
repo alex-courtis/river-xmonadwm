@@ -1,9 +1,0 @@
-
-layout_view
-layout_view
-layout_view
-layout_view
-layout_view
-layout_view
-layout_view
-layout_view

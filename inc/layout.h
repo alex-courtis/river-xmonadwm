@@ -32,7 +32,7 @@ enum Cardinal {
 };
 
 // populate master/stack areas for Tag
-void calc_master_stack(const struct Demand demand,
+void layout_master_stack(const struct Demand demand,
 		const struct Tag tag,
 		struct Box *master,
 		struct Box *stack);
@@ -42,7 +42,7 @@ void layout_monocle(const struct Demand demand,
 		struct SList **views);
 
 // recursively append new Box to views as per stack
-void layout_view(const struct Demand demand,
+void layout_views(const struct Demand demand,
 		const enum Stack stack,
 		const enum Cardinal dir_cur,
 		const enum Cardinal dir_next,
