@@ -4,7 +4,8 @@
 #include "river-layout-v3-client-protocol.h"
 
 #include "displ.h"
-#include "layout.h"
+#include "arrange.h"
+#include "list.h"
 #include "log.h"
 #include "output.h"
 #include "tag.h"
@@ -25,18 +26,25 @@ static void layout_handle_layout_demand(void *data,
 		return;
 
 	const struct Demand demand = {
-		.river_layout = output->river_layout,
 		.view_count = view_count,
 		.usable_width = usable_width,
 		.usable_height = usable_height,
-		.tags = tags,
-		.serial = serial,
 	};
 
+	// use lowest tag's layout
 	struct Tag *tag = tag_first(output->tags, tags);
 
-	push_views(demand, *tag);
+	// position all views
+	struct SList **views = layout(demand, *tag);
 
+	// push all views
+	for (struct SList *i = *views; i; i = i->nex) {
+		struct Box *box = i->val;
+		river_layout_v3_push_view_dimensions(river_layout_v3, box->x, box->y, box->width, box->height, serial);
+	}
+	slist_free_vals(views, NULL);
+
+	// commit
 	river_layout_v3_commit(output->river_layout, "[]=", serial);
 }
 

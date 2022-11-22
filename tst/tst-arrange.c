@@ -7,7 +7,7 @@
 
 #include "list.h"
 
-#include "layout.h"
+#include "arrange.h"
 
 int setup(void **state) {
 	return 0;
@@ -17,11 +17,11 @@ int teardown(void **state) {
 	return 0;
 }
 
-void push_monocle__many(void **state) {
+void arrange_monocle__many(void **state) {
 	struct SList *stack = NULL;
 	struct Demand demand = { .view_count = 2, .usable_width = 5, .usable_height = 3 };
 
-	layout_monocle(demand, &stack);
+	arrange_monocle(demand, &stack);
 
 	assert_int_equal(slist_length(stack), 2);
 
@@ -31,7 +31,7 @@ void push_monocle__many(void **state) {
 
 int main(void) {
 	const struct CMUnitTest tests[] = {
-		cmocka_unit_test(push_monocle__many),
+		cmocka_unit_test(arrange_monocle__many),
 	};
 
 	return cmocka_run_group_tests(tests, setup, teardown);

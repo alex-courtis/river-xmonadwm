@@ -7,7 +7,7 @@
 
 #include <cmocka.h>
 
-#include "layout.h"
+#include "arrange.h"
 
 //
 // asserts

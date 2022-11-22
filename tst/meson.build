@@ -8,21 +8,21 @@ tests = {
 			'../src/tag.c',
 			),
 		},
-	'layout': {
+	'arrange': {
 		'src': files(
-			'../src/layout.c',
+			'../src/arrange.c',
 			'../src/list.c',
 			),
 		},
-	'layout-master-stack': {
+	'arrange-master-stack': {
 		'src': files(
-			'../src/layout.c',
+			'../src/arrange.c',
 			'../src/list.c',
 			),
 		},
-	'layout-views': {
+	'arrange-views': {
 		'src': files(
-			'../src/layout.c',
+			'../src/arrange.c',
 			'../src/list.c',
 			),
 		},

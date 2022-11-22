@@ -6,9 +6,9 @@
 #include "list.h"
 #include "tag.h"
 
-#include "layout.h"
+#include "arrange.h"
 
-void layout_master_stack(const struct Demand demand,
+void arrange_master_stack(const struct Demand demand,
 		const struct Tag tag,
 		struct Box *master,
 		struct Box *stack) {
@@ -16,7 +16,9 @@ void layout_master_stack(const struct Demand demand,
 	memset(master, 0, sizeof(*master));
 	memset(stack, 0, sizeof(*master));
 
-	if (demand.view_count == 0) {
+	if (tag.count_master <= 0) {
+		stack->width = demand.usable_width;
+		stack->height = demand.usable_height;
 		return;
 	}
 
@@ -93,7 +95,7 @@ void layout_master_stack(const struct Demand demand,
 	}
 }
 
-void layout_monocle(const struct Demand demand,
+void arrange_monocle(const struct Demand demand,
 		struct SList **views) {
 
 	struct Box usable = { 0, 0, demand.usable_width, demand.usable_height };
@@ -106,7 +108,7 @@ void layout_monocle(const struct Demand demand,
 	}
 }
 
-void layout_views(const struct Demand demand,
+void arrange_views(const struct Demand demand,
 		const enum Stack stack,
 		const enum Cardinal dir_cur,
 		const enum Cardinal dir_next,
@@ -178,7 +180,7 @@ void layout_views(const struct Demand demand,
 
 	slist_append(views, this);
 
-	layout_views(demand, stack,
+	arrange_views(demand, stack,
 			stack == DWINDLE ? dir_next : dir_cur,
 			stack == DWINDLE ? dir_cur : dir_next,
 			num_total, num_remaining - 1,
@@ -186,36 +188,42 @@ void layout_views(const struct Demand demand,
 			views);
 }
 
-void push_views(const struct Demand demand, const struct Tag tag) {
+struct SList **layout(const struct Demand demand,
+		const struct Tag tag) {
+	struct SList **views = NULL;
 
 	struct Box box_master = { 0 };
 	struct Box box_stack = { 0 };
-	struct SList *stack = NULL;
 
-	layout_master_stack(demand, tag, &box_master, &box_stack);
+	uint32_t num_master = tag.count_master;
+	uint32_t num_stack = demand.view_count - num_master;
+
+	arrange_master_stack(demand, tag, &box_master, &box_stack);
 
 	switch(tag.layout_cur) {
 		case LEFT:
 		case RIGHT:
 			// top to bottom
-			layout_views(demand, EVEN, S, S, tag.count_master, tag.count_master, box_master, box_master, &stack);
-			layout_views(demand, tag.stack, S, S, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
+			arrange_views(demand, EVEN, S, S, num_master, num_master, box_master, box_master, views);
+			arrange_views(demand, tag.stack, S, S, num_stack, num_stack, box_stack, box_stack, views);
 			break;
 		case TOP:
 		case BOTTOM:
 			// left to right
-			layout_views(demand, EVEN, E, E, tag.count_master, tag.count_master, box_master, box_master, &stack);
-			layout_views(demand, tag.stack, E, E, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
+			arrange_views(demand, EVEN, E, E, num_master, num_master, box_master, box_master, views);
+			arrange_views(demand, tag.stack, E, E, num_stack, num_stack, box_stack, box_stack, views);
 			break;
 		case MONOCLE:
-			layout_monocle(demand, &stack);
+			arrange_monocle(demand, views);
 			break;
 		case MID:
 			// top to bottom
 			// TODO left stack
-			layout_views(demand, EVEN, S, S, tag.count_master, tag.count_master, box_master, box_master, &stack);
-			layout_views(demand, tag.stack, S, S, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
+			arrange_views(demand, EVEN, S, S, num_master, num_master, box_master, box_master, views);
+			arrange_views(demand, tag.stack, S, S, num_stack, num_stack, box_stack, box_stack, views);
 			break;
 	}
+
+	return views;
 }
 
