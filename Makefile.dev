@@ -16,5 +16,5 @@ copy: build
 	scp build/river-xmonadwm duke:bin
 
 iwyu: build
-	iwyu-tool -p build/compile_commands.json -- -Xiwyu --no_comments -Xiwyu --no_fwd_decls
+	iwyu-tool -p build/compile_commands.json -- -Xiwyu --no_comments -Xiwyu --no_fwd_decls -Xiwyu --check_also="../inc/*h" -Xiwyu --check_also="../tst/*h"
 

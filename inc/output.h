@@ -3,7 +3,9 @@
 
 #include <stdint.h>
 
-struct river_layout_manager_v3;
+#include <wayland-client-protocol.h>
+
+#include "river-layout-v3-client-protocol.h"
 
 struct Output {
 	struct wl_output *wl_output;

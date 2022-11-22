@@ -18,7 +18,7 @@ static void global(void *data,
 		uint32_t name,
 		const char *interface,
 		uint32_t version) {
-	log_debug("listener_registry global %lu %s %lu", name, interface, version);
+	log_debug("listener_registry global %u %s %u", name, interface, version);
 
 	if (strcmp(interface, river_layout_manager_v3_interface.name) == 0) {
 
@@ -52,7 +52,7 @@ static void global(void *data,
 static void global_remove(void *data,
 		struct wl_registry *wl_registry,
 		uint32_t name) {
-	log_debug("listener_registry global_remove %lu", name);
+	log_debug("listener_registry global_remove %u", name);
 
 	for (struct SList *i = displ->outputs; i; i = i->nex) {
 		struct Output *output = i->val;

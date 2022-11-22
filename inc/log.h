@@ -1,8 +1,6 @@
 #ifndef LOG_H
 #define LOG_H
 
-#include <stdbool.h>
-
 void log_debug(const char *__restrict __format, ...);
 
 void log_info(const char *__restrict __format, ...);

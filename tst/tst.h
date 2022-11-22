@@ -1,13 +1,13 @@
-#include <setjmp.h>
-#include <stdarg.h>
-#include <stddef.h>
-#include <stdbool.h>
-#include <stdint.h>
+#ifndef TST_H
+#define TST_H
+
+#include <setjmp.h> // IWYU pragma: keep
+#include <stdarg.h> // IWYU pragma: keep
 #include <string.h>
 
 #include <cmocka.h>
 
-#include "arrange.h"
+#include "layout.h"
 
 //
 // asserts
@@ -37,3 +37,4 @@ static void _assert_boxes_equal(struct Box *a, struct Box *b,
 	_assert_boxes_equal(a, &expected, __FILE__, __LINE__); \
 }
 
+#endif // TST_H

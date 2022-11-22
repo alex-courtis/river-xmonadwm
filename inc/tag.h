@@ -4,6 +4,7 @@
 #include <stdint.h>
 
 #include "config.h"
+#include "list.h"
 
 struct Tag {
 	uint32_t mask;

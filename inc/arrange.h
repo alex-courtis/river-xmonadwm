@@ -1,23 +1,12 @@
-#ifndef LAYOUT_H
-#define LAYOUT_H
+#ifndef ARRANGE_H
+#define ARRANGE_H
 
-#include <stdbool.h>
 #include <stdint.h>
 
+#include "config.h"
+#include "layout.h"
+#include "list.h"
 #include "tag.h"
-
-struct Demand {
-	const uint32_t view_count;
-	const uint32_t usable_width;
-	const uint32_t usable_height;
-};
-
-struct Box {
-	uint32_t x;
-	uint32_t y;
-	uint32_t width;
-	uint32_t height;
-};
 
 enum Cardinal {
 	N,
@@ -25,10 +14,6 @@ enum Cardinal {
 	E,
 	W,
 };
-
-// populate views with Box for river layout push dimensions
-struct SList **layout(const struct Demand demand,
-		const struct Tag tag);
 
 // populate master/stack areas for Tag
 void arrange_master_stack(const struct Demand demand,
@@ -51,5 +36,5 @@ void arrange_views(const struct Demand demand,
 		const struct Box box_remaining,
 		struct SList **views);
 
-#endif // LAYOUT_H
+#endif // ARRANGE_H
 
