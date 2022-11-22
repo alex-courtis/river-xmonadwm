@@ -26,11 +26,9 @@ void calc_master_stack__zero(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 0, 0, 0, 0, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 0, 0, 0, 0);
 
-	struct Box stack_expected = { 0, 0, 0, 0, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 0, 0, 0, 0);
 }
 
 void calc_master_stack__one_count_two(void **state) {
@@ -41,11 +39,9 @@ void calc_master_stack__one_count_two(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 0, 0, 9, 5, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 0, 0, 9, 5);
 
-	struct Box stack_expected = { 0, 0, 0, 0, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 0, 0, 0, 0);
 }
 
 void calc_master_stack__two_count_two(void **state) {
@@ -56,11 +52,9 @@ void calc_master_stack__two_count_two(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 0, 0, 9, 5, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 0, 0, 9, 5);
 
-	struct Box stack_expected = { 0, 0, 0, 0, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 0, 0, 0, 0);
 }
 
 void calc_master_stack__three_count_two(void **state) {
@@ -71,11 +65,9 @@ void calc_master_stack__three_count_two(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 0, 0, 5, 5, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 0, 0, 5, 5);
 
-	struct Box stack_expected = { 5, 0, 4, 5, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 5, 0, 4, 5);
 }
 
 void calc_master_stack__one_left(void **state) {
@@ -86,11 +78,9 @@ void calc_master_stack__one_left(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 0, 0, 9, 5, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 0, 0, 9, 5);
 
-	struct Box stack_expected = { 0, 0, 0, 0, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 0, 0, 0, 0);
 }
 
 void calc_master_stack__many_left(void **state) {
@@ -101,11 +91,9 @@ void calc_master_stack__many_left(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 0, 0, 5, 5, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 0, 0, 5, 5);
 
-	struct Box stack_expected = { 5, 0, 4, 5, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 5, 0, 4, 5);
 }
 
 void calc_master_stack__one_right(void **state) {
@@ -116,11 +104,9 @@ void calc_master_stack__one_right(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 0, 0, 9, 5, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 0, 0, 9, 5);
 
-	struct Box stack_expected = { 0, 0, 0, 0, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 0, 0, 0, 0);
 }
 
 void calc_master_stack__many_right(void **state) {
@@ -131,11 +117,9 @@ void calc_master_stack__many_right(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 4, 0, 5, 5, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 4, 0, 5, 5);
 
-	struct Box stack_expected = { 0, 0, 4, 5, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 0, 0, 4, 5);
 }
 
 void calc_master_stack__one_top(void **state) {
@@ -146,11 +130,9 @@ void calc_master_stack__one_top(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 0, 0, 9, 5, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 0, 0, 9, 5);
 
-	struct Box stack_expected = { 0, 0, 0, 0, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 0, 0, 0, 0);
 }
 
 void calc_master_stack__many_top(void **state) {
@@ -161,11 +143,9 @@ void calc_master_stack__many_top(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 0, 0, 9, 3, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 0, 0, 9, 3);
 
-	struct Box stack_expected = { 0, 3, 9, 2, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 0, 3, 9, 2);
 }
 
 void calc_master_stack__one_bottom(void **state) {
@@ -176,11 +156,9 @@ void calc_master_stack__one_bottom(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 0, 0, 9, 5, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 0, 0, 9, 5);
 
-	struct Box stack_expected = { 0, 0, 0, 0, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 0, 0, 0, 0);
 }
 
 void calc_master_stack__many_bottom(void **state) {
@@ -191,11 +169,9 @@ void calc_master_stack__many_bottom(void **state) {
 
 	calc_master_stack(demand, tag, &master, &stack);
 
-	struct Box master_expected = { 0, 3, 9, 3, };
-	assert_box_equal(&master, &master_expected);
+	assert_box_equal(&master, 0, 3, 9, 3);
 
-	struct Box stack_expected = { 0, 0, 9, 2, };
-	assert_box_equal(&stack, &stack_expected);
+	assert_box_equal(&stack, 0, 0, 9, 2);
 }
 
 int main(void) {

@@ -8,27 +8,23 @@ tests = {
 			'../src/tag.c',
 			),
 		},
+	'layout': {
+		'src': files(
+			'../src/layout.c',
+			'../src/list.c',
+			),
+		},
 	'layout-calc-master-stack': {
 		'src': files(
-			'../src/config.c',
 			'../src/layout.c',
 			'../src/list.c',
-			'../src/tag.c',
 			),
-		'link_args': [
-			'-Wl,--wrap=_river_layout_v3_push_view_dimensions',
-			]
 		},
-	'layout-push-stack': {
+	'layout-area': {
 		'src': files(
-			'../src/config.c',
 			'../src/layout.c',
 			'../src/list.c',
-			'../src/tag.c',
 			),
-		'link_args': [
-			'-Wl,--wrap=_river_layout_v3_push_view_dimensions',
-			]
 		},
 	}
 
@@ -38,10 +34,10 @@ foreach name, params: tests
 		'tst-@0@.c'.format(name),
 		params['src'],
 		include_directories: includes,
-		dependencies: cmocka,
+		dependencies: [cmocka, client_protos],
 		c_args : '-Wno-unused-function',
 		link_args : params.get('link_args', ''),
 		)
-	test(name, exe, verbose: true)
+	test(name, exe, verbose: false)
 endforeach
 

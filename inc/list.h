@@ -38,6 +38,9 @@ bool slist_equal(struct SList *a, struct SList *b, bool (*equal)(const void *a, 
 // length
 unsigned long slist_length(struct SList *head);
 
+// val at index
+void *slist_val(struct SList *head, unsigned long index);
+
 // clone the list, setting val pointers
 struct SList *slist_shallow_clone(struct SList *head);
 

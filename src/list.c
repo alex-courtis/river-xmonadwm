@@ -5,6 +5,9 @@
 #include "list.h"
 
 struct SList *slist_append(struct SList **head, void *val) {
+	if (!head)
+		return NULL;
+
 	struct SList *i, *l;
 
 	i = calloc(1, sizeof(struct SList));
@@ -88,6 +91,9 @@ bool slist_equal(struct SList *a, struct SList *b, bool (*equal)(const void *a, 
 }
 
 void *slist_remove(struct SList **head, struct SList **item) {
+	if (!head || !item)
+		return NULL;
+
 	struct SList *i, *f, *p;
 	void *removed = NULL;
 
@@ -118,6 +124,9 @@ void *slist_remove(struct SList **head, struct SList **item) {
 }
 
 unsigned long slist_remove_all(struct SList **head, bool (*equal)(const void *val, const void *data), const void *data) {
+	if (!head)
+		return 0;
+
 	struct SList *i;
 	unsigned long removed = 0;
 
@@ -130,6 +139,9 @@ unsigned long slist_remove_all(struct SList **head, bool (*equal)(const void *va
 }
 
 unsigned long slist_remove_all_free(struct SList **head, bool (*equal)(const void *val, const void *data), const void *data, void (*free_val)(void *val)) {
+	if (!head)
+		return 0;
+
 	struct SList *i;
 	unsigned long removed = 0;
 
@@ -155,6 +167,17 @@ struct SList *slist_shallow_clone(struct SList *head) {
 	}
 
 	return c;
+}
+
+void *slist_val(struct SList *head, unsigned long index) {
+	unsigned long n = 0;
+
+	for (struct SList *i = head; i; i = i->nex) {
+		if (index == n++)
+			return i->val;
+	}
+
+	return NULL;
 }
 
 unsigned long slist_length(struct SList *head) {
@@ -203,6 +226,9 @@ struct SList *slist_sort(struct SList *head, bool (*before)(const void *a, const
 }
 
 void slist_free(struct SList **head) {
+	if (!head)
+		return;
+
 	struct SList *i, *f;
 
 	i = *head;
@@ -216,6 +242,9 @@ void slist_free(struct SList **head) {
 }
 
 void slist_free_vals(struct SList **head, void (*free_val)(void *val)) {
+	if (!head)
+		return;
+
 	struct SList *i;
 
 	for (i = *head; i; i = i->nex) {

@@ -1,15 +1,17 @@
-#include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
-#include <stdio.h>
 
 #include "config.h"
-#include "river_layout.h"
+#include "list.h"
 #include "tag.h"
 
 #include "layout.h"
 
-void calc_master_stack(const struct Demand demand, const struct Tag tag, struct Box *master, struct Box *stack) {
+void calc_master_stack(const struct Demand demand,
+		const struct Tag tag,
+		struct Box *master,
+		struct Box *stack) {
 
 	memset(master, 0, sizeof(*master));
 	memset(stack, 0, sizeof(*master));
@@ -91,34 +93,45 @@ void calc_master_stack(const struct Demand demand, const struct Tag tag, struct 
 	}
 }
 
-void push_monocle(const struct Demand demand) {
+void layout_monocle(const struct Demand demand,
+		struct SList **views) {
+
+	struct Box usable = { 0, 0, demand.usable_width, demand.usable_height };
+
 	for (uint32_t i = 0; i < demand.view_count; i++) {
-		_river_layout_v3_push_view_dimensions(demand.river_layout, 0, 0, demand.usable_width, demand.usable_height, demand.serial);
+		struct Box *this = calloc(1, sizeof(struct Box));
+		memcpy(this, &usable, sizeof(struct Box));
+
+		slist_append(views, this);
 	}
 }
 
-void push_stack(const struct Demand demand,
-		const enum Stack mode,
+void layout_view(const struct Demand demand,
+		const enum Stack stack,
 		const enum Cardinal dir_cur,
 		const enum Cardinal dir_next,
 		const uint32_t num_total,
 		const uint32_t num_remaining,
 		const struct Box box_total,
-		const struct Box box_stack) {
+		const struct Box box_remaining,
+		struct SList **views) {
 	if (num_total == 0 || num_remaining == 0)
 		return;
 
+	struct Box *this = calloc(1, sizeof(struct Box));
+	memcpy(this, &box_remaining, sizeof(struct Box));
+
 	if (num_remaining == 1) {
-		_river_layout_v3_push_view_dimensions(demand.river_layout, box_stack.x, box_stack.y, box_stack.width, box_stack.height, demand.serial);
+		slist_append(views, this);
 		return;
 	}
 
 	// size
 	uint32_t width, height, denom = 0;
-	switch (mode) {
+	switch (stack) {
 		case EVEN:
-			width = (double)(box_total.width) / num_total + 0.5;
-			height = (double)(box_total.height) / num_total + 0.5;
+			width = (double)(box_remaining.width) / num_remaining + 0.5;
+			height = (double)(box_remaining.height) / num_remaining + 0.5;
 			break;
 		case DIMINISH:
 			for (uint32_t i = num_total; i > 0; i--)
@@ -127,76 +140,81 @@ void push_stack(const struct Demand demand,
 			height = (double)(num_remaining) * box_total.height / denom + 0.5;
 			break;
 		case DWINDLE:
-			width = (double)(box_stack.width) / 2 + 0.5;
-			height = (double)(box_stack.height) / 2 + 0.5;
+			width = (double)(box_remaining.width) / 2 + 0.5;
+			height = (double)(box_remaining.height) / 2 + 0.5;
 			break;
 	}
 
 	// dimension
-	struct Box this = box_stack;
-	struct Box remaining = box_stack;
+	struct Box remaining = box_remaining;
 	switch (dir_cur) {
 		case N:
 		case S:
-			this.height = height;
-			remaining.height -= this.height;
+			this->height = height;
+			remaining.height -= this->height;
 			break;
 		case E:
 		case W:
-			this.width = width;
-			remaining.width -= this.width;
+			this->width = width;
+			remaining.width -= this->width;
 			break;
 	}
 
 	// position
 	switch (dir_cur) {
 		case N:
-			this.y += box_stack.height - this.height;
+			this->y += box_remaining.height - this->height;
 			break;
 		case S:
-			remaining.y += this.height;
+			remaining.y += this->height;
 			break;
 		case E:
-			remaining.x += this.width;
+			remaining.x += this->width;
 			break;
 		case W:
-			this.x += box_stack.width - this.width;
+			this->x += box_remaining.width - this->width;
 			break;
 	}
 
-	_river_layout_v3_push_view_dimensions(demand.river_layout, this.x, this.y, this.width, this.height, demand.serial);
+	slist_append(views, this);
 
-	if (mode == DWINDLE) {
-		push_stack(demand, mode, dir_next, dir_cur, num_total, num_remaining - 1, box_total, remaining);
-	} else {
-		push_stack(demand, mode, dir_cur, dir_next, num_total, num_remaining - 1, box_total, remaining);
-	}
+	layout_view(demand, stack,
+			stack == DWINDLE ? dir_next : dir_cur,
+			stack == DWINDLE ? dir_cur : dir_next,
+			num_total, num_remaining - 1,
+			box_total, remaining,
+			views);
 }
 
 void push_views(const struct Demand demand, const struct Tag tag) {
 
-	struct Box master = { 0 };
-	struct Box stack = { 0 };
+	struct Box box_master = { 0 };
+	struct Box box_stack = { 0 };
+	struct SList *stack = NULL;
 
-	calc_master_stack(demand, tag, &master, &stack);
+	calc_master_stack(demand, tag, &box_master, &box_stack);
 
 	switch(tag.layout_cur) {
 		case LEFT:
 		case RIGHT:
 			// top to bottom
-			push_stack(demand, tag.stack, S, S, tag.count_master, tag.count_master, master, master);
-			push_stack(demand, tag.stack, S, S, demand.view_count, demand.view_count, stack, stack);
+			layout_view(demand, EVEN, S, S, tag.count_master, tag.count_master, box_master, box_master, &stack);
+			layout_view(demand, tag.stack, S, S, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
 			break;
 		case TOP:
 		case BOTTOM:
 			// left to right
-			push_stack(demand, tag.stack, E, E, tag.count_master, tag.count_master, master, master);
-			push_stack(demand, tag.stack, E, E, demand.view_count, demand.view_count, stack, stack);
+			layout_view(demand, EVEN, E, E, tag.count_master, tag.count_master, box_master, box_master, &stack);
+			layout_view(demand, tag.stack, E, E, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
 			break;
 		case MONOCLE:
-			push_monocle(demand);
+			layout_monocle(demand, &stack);
 			break;
 		case MID:
+			// top to bottom
+			// TODO left stack
+			layout_view(demand, EVEN, S, S, tag.count_master, tag.count_master, box_master, box_master, &stack);
+			layout_view(demand, tag.stack, S, S, demand.view_count, demand.view_count, box_stack, box_stack, &stack);
 			break;
 	}
 }
