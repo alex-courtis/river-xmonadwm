@@ -22,7 +22,7 @@ struct Box {
 char *layout_description(const struct Demand demand, const struct Tag tag);
 
 // populate views with Box for river layout push dimensions, caller frees
-struct SList **layout(const struct Demand demand, const struct Tag tag);
+struct SList *layout(const struct Demand demand, const struct Tag tag);
 
 #endif // LAYOUT_H
 

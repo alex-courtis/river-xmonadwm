@@ -3,7 +3,7 @@
 
 #include <stdbool.h>
 
-extern struct Displ *displ;
+extern struct Displ displ;
 
 struct Displ {
 	// global singletons
@@ -18,8 +18,10 @@ struct Displ {
 	int rc;
 };
 
-bool displ_init(void);
+// connect and register all listeners
+bool displ_connect(void);
 
-void displ_destroy(void);
+// disconnect the display, destroying resources
+void displ_disconnect(void);
 
 #endif // DISPL_H

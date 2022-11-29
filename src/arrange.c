@@ -47,7 +47,8 @@ void arrange_master_stack(const struct Demand demand,
 			stack->height = demand.usable_height - master->height;
 			break;
 
-		default:
+		case MONOCLE:
+		case MID:
 			break;
 	}
 
@@ -69,7 +70,8 @@ void arrange_master_stack(const struct Demand demand,
 			master->y = master->height;
 			break;
 
-		default:
+		case MONOCLE:
+		case MID:
 			break;
 	}
 
@@ -91,7 +93,8 @@ void arrange_master_stack(const struct Demand demand,
 			stack->y = 0;
 			break;
 
-		default:
+		case MONOCLE:
+		case MID:
 			break;
 	}
 }

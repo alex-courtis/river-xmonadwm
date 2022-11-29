@@ -19,7 +19,7 @@ static void layout_handle_layout_demand(void *data,
 		uint32_t usable_height,
 		uint32_t tags,
 		uint32_t serial) {
-	log_debug("layout_handle_layout_demand %u %ux%u 0x%ux", view_count, usable_width, usable_height, tags);
+	log_debug("demand: view_count %02u usable_area %ux%u tags 0x%u", view_count, usable_width, usable_height, tags);
 
 	struct Output *output = (struct Output*)data;
 	if (!output)
@@ -35,14 +35,16 @@ static void layout_handle_layout_demand(void *data,
 	struct Tag *tag = tag_first(output->tags, tags);
 
 	// position all views
-	struct SList **views = layout(demand, *tag);
+	struct SList *views = layout(demand, *tag);
 
 	// push all views
-	for (struct SList *i = *views; i; i = i->nex) {
+	uint32_t n = 0;
+	for (struct SList *i = views; i; i = i->nex) {
 		struct Box *box = i->val;
+		log_debug("push: %02u %u,%u %ux%u", n++, box->x, box->y, box->width, box->height);
 		river_layout_v3_push_view_dimensions(river_layout_v3, box->x, box->y, box->width, box->height, serial);
 	}
-	slist_free_vals(views, NULL);
+	slist_free_vals(&views, NULL);
 
 	// river name
 	char *name = layout_description(demand, *tag);
@@ -56,8 +58,8 @@ static void layout_handle_layout_demand(void *data,
 static void layout_handle_namespace_in_use(void *data,
 		struct river_layout_v3 *river_layout_v3) {
 	log_error("river namespace in use, exiting");
-	displ->terminate = true;
-	displ->rc = EXIT_FAILURE;
+	displ.terminate = true;
+	displ.rc = EXIT_FAILURE;
 }
 
 static void layout_handle_user_command(void *data,

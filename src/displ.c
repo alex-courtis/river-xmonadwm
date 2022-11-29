@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
+#include <string.h>
 #include <wayland-client-core.h>
 #include <wayland-client-protocol.h>
 
@@ -12,60 +13,51 @@
 
 #include "displ.h"
 
-struct Displ *displ = NULL;
+struct Displ displ = { 0 };
 
-bool displ_init(void) {
-	displ = calloc(1, sizeof(struct Displ));
+bool displ_connect(void) {
+	memset(&displ, 0, sizeof(displ));
 
-	displ->wl_display = wl_display_connect(NULL);
-	if (!displ->wl_display) {
+	displ.wl_display = wl_display_connect(NULL);
+	if (!displ.wl_display) {
 		log_error("Unable to connect to the compositor. Check or set the WAYLAND_DISPLAY environment variable.");
-		goto error;
+		return false;
 	}
 
-	displ->wl_registry = wl_display_get_registry(displ->wl_display);
-	if (!displ->wl_registry) {
+	displ.wl_registry = wl_display_get_registry(displ.wl_display);
+	if (!displ.wl_registry) {
 		log_error("wl_display_get_registry failed, exiting");
-		goto error;
+		return false;
 	}
 
-	wl_registry_add_listener(displ->wl_registry, registry_listener(), displ);
+	wl_registry_add_listener(displ.wl_registry, registry_listener(), &displ);
 
-	if (wl_display_roundtrip(displ->wl_display) == -1) {
+	if (wl_display_roundtrip(displ.wl_display) == -1) {
 		log_error("wl_display_roundtrip failed, exiting");
-		goto error;
+		return false;
 	}
 
-	if (!displ->river_layout_manager) {
+	if (!displ.river_layout_manager) {
 		log_error("Compositor does not support river_layout_v3 protocol, exiting");
-		goto error;
+		return false;
 	}
 
 	return true;
-
-error:
-	free(displ);
-	return false;
 }
 
-void displ_destroy(void) {
-	if (!displ)
-		return;
+void displ_disconnect(void) {
+	slist_free_vals(&displ.outputs, output_destroy);
 
-	slist_free_vals(&displ->outputs, output_destroy);
-
-	if (displ->river_layout_manager) {
-		river_layout_manager_v3_destroy(displ->river_layout_manager);
+	if (displ.river_layout_manager) {
+		river_layout_manager_v3_destroy(displ.river_layout_manager);
 	}
-	if (displ->wl_registry) {
-		wl_registry_destroy(displ->wl_registry);
+	if (displ.wl_registry) {
+		wl_registry_destroy(displ.wl_registry);
 	}
-	if (displ->wl_display) {
-		wl_display_disconnect(displ->wl_display);
+	if (displ.wl_display) {
+		wl_display_disconnect(displ.wl_display);
 	}
 
-	free(displ);
-
-	displ = NULL;
+	memset(&displ, 0, sizeof(displ));
 }
 

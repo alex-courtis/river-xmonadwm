@@ -36,7 +36,7 @@ void print_prefix(enum LogThreshold threshold, FILE *__restrict __stream) {
 }
 
 void log_(enum LogThreshold threshold, int eno, const char *__restrict __format, va_list __args) {
-	if (threshold < config()->log_threshold) {
+	if (threshold < log_threshold) {
 		return;
 	}
 

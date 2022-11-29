@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 enum Layout {
-	LEFT = 0,
+	LEFT = 1,
 	RIGHT,
 	TOP,
 	BOTTOM,
@@ -13,16 +13,9 @@ enum Layout {
 };
 
 enum Stack {
-	EVEN = 0,
+	EVEN = 1,
 	DIMINISH,
 	DWINDLE,
-};
-
-enum LogThreshold {
-	INFO = 0,
-	DEBUG,
-	WARNING,
-	ERROR,
 };
 
 struct Config {
@@ -30,19 +23,20 @@ struct Config {
 	enum Stack stack;
 	uint32_t count_master;
 	double ratio_master;
-	enum LogThreshold log_threshold;
 };
 
-// crate or replace active
-void config_parse(int argc, char **argv);
+extern struct Config cfg;
 
-// return one and only active, instantiating a default if not present
-struct Config *config(void);
+enum LogThreshold {
+	DEBUG = 1,
+	INFO,
+	WARNING,
+	ERROR,
+};
 
-void config_print(void);
+extern enum LogThreshold log_threshold;
 
-// destroy one and only active
-void config_destroy(void);
+// build cfg from user's args
+void config_build(int argc, char **argv);
 
 #endif // CONFIG_H
-

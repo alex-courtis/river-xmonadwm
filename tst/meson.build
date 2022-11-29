@@ -4,6 +4,7 @@ tests = {
 	'tag': {
 		'src': files(
 			'../src/config.c',
+			'../src/log.c',
 			'../src/list.c',
 			'../src/tag.c',
 			),

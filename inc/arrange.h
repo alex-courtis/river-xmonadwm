@@ -15,6 +15,13 @@ enum Cardinal {
 	W,
 };
 
+enum Ordinal {
+	NE,
+	SE,
+	SW,
+	NW,
+};
+
 // populate master/stack areas for Tag
 void arrange_master_stack(const struct Demand demand,
 		const struct Tag tag,

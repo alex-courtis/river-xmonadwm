@@ -9,13 +9,13 @@
 struct Tag *tag_init(const uint32_t mask) {
 	struct Tag *tag = calloc(1, sizeof(struct Tag));
 
-	tag->layout_cur = config()->layout;
-	tag->layout_prev = config()->layout;
+	tag->layout_cur = cfg.layout;
+	tag->layout_prev = cfg.layout;
 
-	tag->stack = config()->stack;
+	tag->stack = cfg.stack;
 
-	tag->count_master = config()->count_master;
-	tag->ratio_master = config()->ratio_master;
+	tag->count_master = cfg.count_master;
+	tag->ratio_master = cfg.ratio_master;
 
 	tag->mask = mask;
 
@@ -33,18 +33,11 @@ struct SList *tags_init(void) {
 	return tags;
 }
 
-void tag_destroy(void *t) {
-	if (!t)
-		return;
-
-	free(t);
-}
-
 void tags_destroy(struct SList *tags) {
 	if (!tags)
 		return;
 
-	slist_free_vals(&tags, tag_destroy);
+	slist_free_vals(&tags, NULL);
 }
 
 struct Tag *tag_first(struct SList *tags, const uint32_t mask) {
